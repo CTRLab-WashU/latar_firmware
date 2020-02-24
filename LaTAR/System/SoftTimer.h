@@ -1,12 +1,12 @@
-#ifndef SYSTEM_TIMER
-#define SYSTEM_TIMER	
+#ifndef SYSTEM_TIMER_SOFT_H
+#define SYSTEM_TIMER_SOFT_H	
 
 #include <stm32f4xx_hal.h>
 #include <functional>
 #include "FreeRTOS.h"
 #include "timers.h"
 
-class Timer
+class SoftTimer
 {	
 
 public:
@@ -15,8 +15,8 @@ public:
 		long id;
 		std::function<void()> callback;
 	};
-	Timer();
-	~Timer();	
+	SoftTimer();
+	~SoftTimer();	
 	
 	bool init(const char * name, const uint32_t duration, std::function<void()> callback_function);
 	

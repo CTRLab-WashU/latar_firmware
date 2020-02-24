@@ -804,9 +804,6 @@
     <ClCompile Include="System\ManualTimer.cpp">
       <Filter>Source files\System</Filter>
     </ClCompile>
-    <ClCompile Include="System\Timer.cpp">
-      <Filter>Source files\System</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -834,6 +831,9 @@
     <ClCompile Include="System\Pin.cpp">
       <Filter>Source files\System</Filter>
     </ClCompile>
+    <ClCompile Include="System\SoftTimer.cpp">
+      <Filter>Source files\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System\Led.h">
@@ -852,9 +852,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="System\ManualTimer.h">
-      <Filter>Source files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="System\Timer.h">
       <Filter>Source files\System</Filter>
     </ClInclude>
     <ClInclude Include="App\Indicator.h">
@@ -876,6 +873,9 @@
       <Filter>Source files\App</Filter>
     </ClInclude>
     <ClInclude Include="System\Pin.h">
+      <Filter>Source files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\SoftTimer.h">
       <Filter>Source files\System</Filter>
     </ClInclude>
   </ItemGroup>

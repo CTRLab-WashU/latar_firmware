@@ -1,14 +1,14 @@
-#include "Timer.h"
+#include "SoftTimer.h"
 #include <stdio.h>
 
 static bool timer_used[configTIMER_QUEUE_LENGTH];
 
-Timer::Timer()
+SoftTimer::SoftTimer()
 {	
 	this->valid = false;
 }
 
-Timer::~Timer()
+SoftTimer::~SoftTimer()
 {	
 	if (isValid()) {
 		xTimerDelete(handle, 0);
@@ -16,7 +16,7 @@ Timer::~Timer()
 	}
 }
 
-bool Timer::init(const char * name, const uint32_t duration, std::function<void()> callback)
+bool SoftTimer::init(const char * name, const uint32_t duration, std::function<void()> callback)
 {	
 	long id = -1;
 	for (long i = 0; i < configTIMER_QUEUE_LENGTH; i++) {
@@ -54,7 +54,7 @@ bool Timer::init(const char * name, const uint32_t duration, std::function<void(
 	return true;
 }	
 
-bool Timer::start()
+bool SoftTimer::start()
 {	
 	if (!isValid()) {
 		return false;
@@ -66,26 +66,26 @@ bool Timer::start()
 	return started;
 }
 
-void Timer::stop()
+void SoftTimer::stop()
 {	
 	if (isValid()) {
 		xTimerStop(handle, 0);
 	}
 }
 
-void Timer::reset()
+void SoftTimer::reset()
 {	
 	if (isValid()) {
 		xTimerReset(handle, 0);
 	}
 }
 
-bool Timer::isValid()
+bool SoftTimer::isValid()
 {
 	return valid;
 }
 
-bool Timer::isRunning()
+bool SoftTimer::isRunning()
 {
 	if (!isValid()) {
 		return false;
@@ -93,7 +93,7 @@ bool Timer::isRunning()
 	return (bool)xTimerIsTimerActive(handle);
 }
 
-void Timer::handle_callbacks(xTimerHandle pxTimert)
+void SoftTimer::handle_callbacks(xTimerHandle pxTimert)
 {
 	Internal *internal = (Internal*) pvTimerGetTimerID(pxTimert);
 	internal->callback();
