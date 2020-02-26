@@ -33,6 +33,9 @@ void App::init()
 	// setup uart to receive commands
 	uart_register_callback(commandReceived);
 	uart_init();	
+	
+//	osThreadDef(app_thread, thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+//	osThreadCreate(osThread(app_thread), (void*)this);
 }	
 
 void App::commandReceived(RxBuffer &buffer)
@@ -102,5 +105,43 @@ void App::commandReceived(RxBuffer &buffer)
 
 void App::syncTimeout()
 {
+	
+}
+
+// useful for quick tests
+void App::thread(void const * argument)
+{	
+	App * app = (App*)argument;
+		
+	const portTickType delay = (5000 / portTICK_RATE_MS);        // 5 second delay
+	portTickType prev_wake = xTaskGetTickCount();
+	
+	uint32_t timestamps[32];
+	uint8_t index = 0;
+	
+	SyncTimer::get().reset();
+	
+	for(;;) {
+		if (index < 32)
+		{
+			timestamps[index] = SyncTimer::get().getTimestamp();
+			vTaskDelayUntil(&prev_wake, delay);
+			index++;
+		}
+		else if (index == 32)
+		{
+			for (uint8_t i=0;i<32;i++) {
+				printf("timestamp = %d\n", timestamps[i]);			
+			}
+			
+			for (uint8_t i = 1; i < 32; i++) {
+				uint32_t delta = timestamps[i] - timestamps[i-1];
+				printf("delta = %d\n", delta);			
+			}
+			
+			index++;
+		}
+
+	}
 	
 }

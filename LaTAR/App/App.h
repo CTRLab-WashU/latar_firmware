@@ -25,6 +25,7 @@ private:
 	static void commandReceived(RxBuffer &buffer);
 	static void syncTimeout();
 	
+	static void thread(void const * argument);
 };
 
 #endif
