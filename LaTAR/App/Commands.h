@@ -3,20 +3,23 @@
 
 enum Commands
 {
-	CLOCK_SYNC        = 0x42,  // init clock synchronzation
-	CLOCK_UPDATE      = 0x43,  // data for clock synchronzation
-	DEVICE_INFO       = 0x44,  // device information for reference
-	DEVICE_IDENTIFY   = 0x45,  // make device self identify for user
+	CLOCK_SYNC			= 0x21,  // init clock synchronzation
+	CLOCK_UPDATE        = 0x22,  // 
+	CLOCK_DATA			= 0x23,  // data for clock synchronzation
 	
-	APP_RESET		  = 0x49,
+	DEVICE_INFO			= 0x24,  // device information for reference
+	DEVICE_IDENTIFY		= 0x25,  // make device self identify for user
 	
-	DISPLAY_START     = 0x4D,
-	DISPLAY_DATA      = 0x4E,
-	DISPLAY_STOP      = 0x4F,
+	APP_RESET			= 0x26,
+	APP_ERROR			= 0x27,
 	
-	TAP_START         = 0x51,
-	TAP_DATA          = 0x52,
-	TAP_STOP          = 0x55,
+	DISPLAY_START		= 0x28,
+	DISPLAY_DATA		= 0x29,
+	DISPLAY_STOP		= 0x2A,
+	
+	TAP_START			= 0x2B,
+	TAP_DATA			= 0x2C,
+	TAP_STOP			= 0x2D,
 	
 };
 
