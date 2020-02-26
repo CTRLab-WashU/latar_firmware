@@ -1,19 +1,22 @@
 #include "SyncTimer.h"
+
 #include <iostream>
 
 static TIM_HandleTypeDef sync_timer_handle;
+void(*sync_timer_callback)(void) = 0;
 static bool sync_timer_is_valid;
-static std::function<void()> sync_timer_callback;
 
-void SyncTimer::init()
+void SyncTimer::init(void(*timeout_callback)(void))
 {
+	sync_timer_callback = timeout_callback;
+	
 	// Enable clocks
 	__HAL_RCC_TIM2_CLK_ENABLE();
 	
 	// Configure timer
 	sync_timer_handle.Instance				= TIM2;
 	sync_timer_handle.Init.Period			= 0xffffffff;
-	sync_timer_handle.Init.Prescaler		= 84 - 1;
+	sync_timer_handle.Init.Prescaler		= 75 - 1;
 	sync_timer_handle.Init.ClockDivision	= TIM_CLOCKDIVISION_DIV1;
 	sync_timer_handle.Init.CounterMode		= TIM_COUNTERMODE_UP;
 	HAL_TIM_Base_Init(&sync_timer_handle);
@@ -39,9 +42,14 @@ extern "C" void TIM2_IRQHandler()
 	{
 		// Clear the interrupt
 		__HAL_TIM_CLEAR_FLAG(&sync_timer_handle, TIM_FLAG_UPDATE);
-		//printf("sync timer is now invalid\r\n");
+		printf("sync timer is now invalid\r\n");
 		sync_timer_is_valid = 0;
-		//sync_timer_callback();
+		
+		if (sync_timer_callback!=0) {
+			sync_timer_callback();
+		}
+		
+		SyncTimer::get().reset();
 	}
 }
 
@@ -64,9 +72,4 @@ void SyncTimer::reset()
 	
 	// Time is now valid
 	sync_timer_is_valid = true;
-}
-
-void SyncTimer::registerTimeoutCallback(std::function<void()> callback)
-{
-	sync_timer_callback = callback;
 }
