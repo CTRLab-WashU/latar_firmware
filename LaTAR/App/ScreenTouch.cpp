@@ -6,7 +6,7 @@
 #include "semphr.h"
 #include "cmsis_os.h"
 #include "Commands.h"
-#include "Communication/uart.h"
+#include "Communication/ruart.h"
 #include "SyncTimer.h"
 #include "Indicator.h"
 
@@ -14,12 +14,6 @@ osSemaphoreId touch_semaphore;
 
 void ScreenTouch::init()
 {		
-	// init data structures
-	stop_buffer[0] = Commands::TAP_STOP;
-	stop_buffer[1] = uart_delim;
-	
-	data_buffer[0] = Commands::TAP_DATA; 
-	
 	// init gpio
 	relay.init(GPIOB, GPIO_PIN_4, GPIO_PULLUP);
 	
@@ -71,7 +65,7 @@ void ScreenTouch::initPwm()
 	// Commit timer init
 	if(HAL_TIM_PWM_Init(&pwm_handle) != HAL_OK)
 	{
-		//printf("failed to init pwm timer");
+		printf("failed to init pwm timer");
 	}
 	
 	// Init CC1 
@@ -83,7 +77,7 @@ void ScreenTouch::initPwm()
 	// Commit PWM out settings
 	if(HAL_TIM_PWM_ConfigChannel(&pwm_handle, &sTimConfig, TIM_CHANNEL_1) != HAL_OK)
 	{
-		//printf("failed to commit pwm config");
+		printf("failed to commit pwm config");
 	}
 }
 
@@ -147,7 +141,7 @@ void ScreenTouch::disable(uint8_t type)
 
 void ScreenTouch::tapCapacitive(TickType_t duration)
 {
-	//printf("tapping capacitive\n");
+	printf("tapping capacitive\n");
 	indicator_pulse_on();
 	relay.set();
 	vTaskDelay(duration);
@@ -157,7 +151,7 @@ void ScreenTouch::tapCapacitive(TickType_t duration)
 
 void ScreenTouch::tapSolenoid(TickType_t duration)
 {
-	//printf("tapping solenoid\n");
+	printf("tapping solenoid\n");
 	indicator_pulse_on();
 	HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
 	vTaskDelay(duration);
@@ -229,48 +223,15 @@ void ScreenTouch::runTapSequence(RxBuffer &buffer)
 	
 	enable(params.type);
 	osSemaphoreRelease(touch_semaphore);
-	
-	if (true)
-	{
-		return;
-	}
-	
-	uint32_t r0, r1, r2, r3;
-	buffer.dequeue();
-	r0 = buffer.dequeue();
-	buffer.dequeue();
-	r1 = buffer.dequeue();
-	buffer.dequeue();
-	r2 = buffer.dequeue();
-	buffer.dequeue();
-	r3 = buffer.dequeue();
-	buffer.dequeue();
-	
-	params.count = r0 | (r1 << 8) | (r2 << 16) | (r3 << 24);
-		
-	r0 = buffer.dequeue();
-	buffer.dequeue();
-	r1 = buffer.dequeue();
-	buffer.dequeue();
-	r2 = buffer.dequeue();
-	buffer.dequeue();
-	r3 = buffer.dequeue();
-	buffer.dequeue();
-	
-	params.interval = r0 | (r1 << 8) | (r2 << 16) | (r3 << 24);
-	
-	params.type = buffer.dequeue();
 
-	osSemaphoreRelease(touch_semaphore);
 }
 
-//RingBuffer<char, 64> touch_tx_buffer;
 char touch_tx_buffer[64];
 
 void ScreenTouch::sendData(uint32_t index, uint32_t timestamp)
 {
-	sprintf(touch_tx_buffer, "R%d,%d\n", index, timestamp);
-	uart_write(touch_tx_buffer);
+	sprintf(touch_tx_buffer, "%d,%d", index, timestamp);
+	ruart_write(Commands::TAP_DATA, touch_tx_buffer);
 }
 
 void ScreenTouch::thread(void const * argument)
@@ -309,8 +270,8 @@ void ScreenTouch::thread(void const * argument)
 			params.count = 0;
 			params.interval = 0;
 			
-			uart_write(touch->stop_buffer);
-			//printf("tap stop\n");
+			ruart_write(Commands::TAP_STOP);
+			printf("tap stop\n");
 		}
 	}
 	

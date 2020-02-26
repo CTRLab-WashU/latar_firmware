@@ -831,6 +831,9 @@
     <ClCompile Include="System\Pin.cpp">
       <Filter>Source files\System</Filter>
     </ClCompile>
+    <ClCompile Include="Communication\ruart.cpp">
+      <Filter>Source files\Communication</Filter>
+    </ClCompile>
     <ClCompile Include="System\SoftTimer.cpp">
       <Filter>Source files\System</Filter>
     </ClCompile>
@@ -875,11 +878,20 @@
     <ClInclude Include="System\Pin.h">
       <Filter>Source files\System</Filter>
     </ClInclude>
+    <ClInclude Include="Communication\ruart.h">
+      <Filter>Source files\Communication</Filter>
+    </ClInclude>
     <ClInclude Include="System\SoftTimer.h">
       <Filter>Source files\System</Filter>
     </ClInclude>
     <ClInclude Include="DataStructures\ascii.h">
       <Filter>DataStructures</Filter>
+    </ClInclude>
+    <ClInclude Include="Communication\ruart_frame.h">
+      <Filter>Source files\Communication</Filter>
+    </ClInclude>
+    <ClInclude Include="Communication\ruart_message.h">
+      <Filter>Source files\Communication</Filter>
     </ClInclude>
     <ClInclude Include="Communication\wrapped_buffer.h">
       <Filter>Source files\Communication</Filter>

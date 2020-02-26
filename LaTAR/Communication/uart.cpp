@@ -3,6 +3,9 @@
 #include "stm32f4xx_hal_uart.h"
 #include <stdio.h>
 
+#include "DataStructures/RingBuffer.h"
+#include "Communication/wrapped_buffer.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
@@ -14,18 +17,15 @@
 static UART_HandleTypeDef uart_handle;
 static bool uart_is_valid = false;
 
+static void uart_rx_thread(void const * argument);
 static void uart_tx_thread(void const * argument);
+
 osSemaphoreId uart_tx_semaphore = NULL;
-RingBuffer<const char *, 64> uart_tx_queue;
+RingBuffer<wrapped_buffer, 64> uart_tx_queue;
 bool uart_tx_blocked;
 
-static void uart_rx_thread(void const * argument);
-std::function<void(RxBuffer&)> uart_rx_callback;
-RxBuffer uart_rx_buffer;
-osSemaphoreId uart_rx_semaphore = NULL;
 
-static void uart_process_thread(void const * argument);
-RxBuffer uart_process_buffer;
+void(*process_byte)(uint8_t byte) = 0;
 
 // gnd == black
 // rx  == white
@@ -55,7 +55,7 @@ void uart_init()
 	uart_handle.Init.OverSampling	= UART_OVERSAMPLING_16;
 	
 	if (HAL_UART_Init(&uart_handle) != HAL_OK) {
-		//printf("failed to initialize uart");
+		printf("failed to initialize uart");
 		return;
 	}
 	
@@ -69,40 +69,39 @@ void uart_init()
 	osThreadDef(uart_tx, uart_tx_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadCreate(osThread(uart_tx), NULL);
 	
-	// create rx semaphore
-	osSemaphoreDef(uart_rx_sem);
-	uart_rx_semaphore = osSemaphoreCreate(osSemaphore(uart_rx_sem), 1);
-    
 	// create rx thread
 	osThreadDef(uart_rx, uart_rx_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadCreate(osThread(uart_rx), NULL);
-	
-	// create process thread
-	osThreadDef(uart_process, uart_process_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-	osThreadCreate(osThread(uart_process), NULL);
 	
 	uart_tx_blocked = false;
 	uart_is_valid = true;
 }
 
-void uart_register_callback(std::function<void(RxBuffer&)> callback_function)
+void uart_register_callback(void(*process)(uint8_t byte))
 {
-	uart_rx_callback = callback_function;
+	process_byte = process;
 }
 
-void uart_write(const char * buffer)
+void uart_unregister_callback()
 {
-	if (!uart_is_valid) {
+	process_byte = 0;
+}
+
+void uart_write(wrapped_buffer buffer)
+{
+	if (uart_tx_blocked || uart_tx_semaphore == NULL) {
 		return;
 	}
 	
 	uart_tx_queue.enqueue(buffer);
 	
-	if (uart_tx_blocked || uart_tx_semaphore == NULL) {
-		return;
-	}
-	
 	osSemaphoreRelease(uart_tx_semaphore);
+}
+
+void uart_write(const char * buffer)
+{
+	wrapped_buffer wrap(buffer);
+	uart_write(wrap);	
 }
 
 static void uart_rx_thread(void const * argument)
@@ -111,43 +110,46 @@ static void uart_rx_thread(void const * argument)
 	
 	for (;;) {
 		if (HAL_UART_Receive(&uart_handle, (uint8_t *)&rx_temp_buffer, 1, HAL_MAX_DELAY) == HAL_OK) {
-			if (rx_temp_buffer[0] == uart_delim) {
-				uart_process_buffer = uart_rx_buffer;
-				uart_rx_buffer.clear();
-				osSemaphoreRelease(uart_rx_semaphore);
-			} else {
-				uart_rx_buffer.enqueue(rx_temp_buffer[0]);
+			if (process_byte) {
+				process_byte(rx_temp_buffer[0]);
 			}
 		}
 	}
+	
 }
 
-static void uart_process_thread(void const * argument)
+void uart_tx(wrapped_buffer buffer)
 { 
-	for (;;) {
-		if (osSemaphoreWait(uart_rx_semaphore, osWaitForever) == osOK) {
-			if (uart_rx_callback != nullptr) {
-				uart_rx_callback(uart_process_buffer);		
-			}
-		}
+//	printf(buffer.data.data());
+//	printf("\n");
+	if (HAL_UART_Transmit(&uart_handle, (uint8_t *)buffer.data.data(), buffer.data.size(), HAL_MAX_DELAY) != HAL_OK) {
+		printf("uart write failed\n");
 	}
 }
 
+void uart_tx(uint8_t byte)
+{
+	uint8_t buff_t[1];
+	buff_t[0] = byte;
+	if (HAL_UART_Transmit(&uart_handle, (uint8_t *)buff_t, 1, HAL_MAX_DELAY) != HAL_OK) {
+		printf("uart write failed\n");
+	}
+}
 
 static void uart_tx_thread(void const * argument)
 { 
-	const char * tx_temp_buffer;
+	wrapped_buffer tx_temp_buffer;
 	
 	for (;;) {
 		if (osSemaphoreWait(uart_tx_semaphore, osWaitForever) == osOK) {
 			uart_tx_blocked = true;
 			while (!uart_tx_queue.isEmpty()) {
 				tx_temp_buffer = uart_tx_queue.dequeue();
-				if (HAL_UART_Transmit(&uart_handle, (uint8_t *)tx_temp_buffer, strlen(tx_temp_buffer), HAL_MAX_DELAY) != HAL_OK) {
-					//printf("uart write failed\n");
+				if (HAL_UART_Transmit(&uart_handle, (uint8_t *)tx_temp_buffer.data.data(), tx_temp_buffer.data.size(), HAL_MAX_DELAY) != HAL_OK) {
+					printf("uart write failed\n");
 				} else {
 //					printf("uart sent '");
-//					printf(tx_temp_buffer);
+//					printf(tx_temp_buffer.data.data());
 //					printf("'\n");
 				}				
 			}

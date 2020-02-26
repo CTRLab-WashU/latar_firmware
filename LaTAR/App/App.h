@@ -3,12 +3,9 @@
 
 #include <stm32f4xx_hal.h>
 
-#include "FreeRTOS.h"
-#include "semphr.h"
-
 #include "System/Led.h"
 #include "App/Indicator.h"
-#include "Communication/uart.h"
+#include "Communication/ruart.h"
 
 class App
 {
@@ -22,7 +19,7 @@ public:
 	void init();
 		
 private:
-	static void commandReceived(RxBuffer &buffer);
+	static void commandReceived(RuartMsg &buffer);
 	static void syncTimeout();
 	
 	static void thread(void const * argument);

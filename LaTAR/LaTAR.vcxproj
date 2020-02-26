@@ -42,7 +42,18 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
       <CPPLanguageStandard>CPP1Z</CPPLanguageStandard>
+      <AdditionalIncludeDirectories>App;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions />
+      <CLanguageStandard />
     </ClCompile>
+    <Link>
+      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LinkerScript />
+      <AdditionalOptions />
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
@@ -62,6 +73,7 @@
     <ClCompile Include="App\ScreenDetect.cpp" />
     <ClCompile Include="App\ScreenTouch.cpp" />
     <ClCompile Include="App\SyncTimer.cpp" />
+    <ClCompile Include="Communication\ruart.cpp" />
     <ClCompile Include="Communication\uart.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="System\Led.cpp" />
@@ -76,7 +88,12 @@
     <ClInclude Include="App\ScreenDetect.h" />
     <ClInclude Include="App\ScreenTouch.h" />
     <ClInclude Include="App\SyncTimer.h" />
+    <ClInclude Include="Communication\ruart.h" />
+    <ClInclude Include="Communication\ruart_frame.h" />
+    <ClInclude Include="Communication\ruart_message.h" />
     <ClInclude Include="Communication\uart.h" />
+    <ClInclude Include="Communication\wrapped_buffer.h" />
+    <ClInclude Include="DataStructures\ascii.h" />
     <ClInclude Include="DataStructures\RingBuffer.h" />
     <ClInclude Include="lwipopts.h" />
     <ClInclude Include="System\Led.h" />

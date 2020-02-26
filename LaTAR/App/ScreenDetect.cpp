@@ -8,6 +8,8 @@
 #include "cmsis_os.h"
 #include "Indicator.h"
 
+#include "Communication/ruart.h"
+
 osSemaphoreId detect_semaphore;
 
 uint32_t timestamp;
@@ -87,8 +89,6 @@ void ScreenDetect::init()
 	osSemaphoreDef(detect_semaphore);
 	detect_semaphore = osSemaphoreCreate(osSemaphore(detect_semaphore), 1);
 	
-	display_detect_buffer[0] = Commands::DISPLAY_DATA;
-	display_detect_buffer[10] = uart_delim;		
 }	
 
 void ScreenDetect::enable()
@@ -134,21 +134,9 @@ void ScreenDetect::update(uint32_t value)
 
 void ScreenDetect::sendData(uint32_t index, uint32_t timestamp, uint8_t value)
 {
-	sprintf(display_detect_buffer, "N%d,%d,%d\n", index, timestamp, value);
-	//	display_detect_buffer[1] = index;
-	//	display_detect_buffer[2] = index >> 8;
-	//	display_detect_buffer[3] = index >> 16;
-	//	display_detect_buffer[4] = index >> 24;
-	//							 
-	//	display_detect_buffer[5] = timestamp;
-	//	display_detect_buffer[6] = timestamp >> 8;
-	//	display_detect_buffer[7] = timestamp >> 16;
-	//	display_detect_buffer[8] = timestamp >> 24;
-	//	
-	//	display_detect_buffer[9] = value;
+	sprintf(display_detect_buffer, "%d,%d,%d", index, timestamp, value);
 	
-	//printf(display_detect_buffer);
-	uart_write(display_detect_buffer);
+	ruart_write(Commands::DISPLAY_DATA, display_detect_buffer);
 }
 
 

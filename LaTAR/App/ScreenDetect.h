@@ -3,7 +3,7 @@
 
 #include <stm32f4xx_hal.h>
 #include "ScreenData.h"
-#include "System/Timer.h"
+#include "System/SoftTimer.h"
 
 class ScreenDetect
 {
