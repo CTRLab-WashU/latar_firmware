@@ -878,5 +878,11 @@
     <ClInclude Include="System\SoftTimer.h">
       <Filter>Source files\System</Filter>
     </ClInclude>
+    <ClInclude Include="DataStructures\ascii.h">
+      <Filter>DataStructures</Filter>
+    </ClInclude>
+    <ClInclude Include="Communication\wrapped_buffer.h">
+      <Filter>Source files\Communication</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
