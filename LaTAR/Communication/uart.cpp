@@ -20,9 +20,9 @@ static bool uart_is_valid = false;
 static void uart_rx_thread(void const * argument);
 static void uart_tx_thread(void const * argument);
 
-osSemaphoreId uart_tx_semaphore = NULL;
-RingBuffer<wrapped_buffer, 64> uart_tx_queue;
-bool uart_tx_blocked;
+static osSemaphoreId uart_tx_semaphore = NULL;
+static RingBuffer<wrapped_buffer, 32> uart_tx_queue;
+static bool uart_tx_blocked;
 
 
 void(*process_byte)(uint8_t byte) = 0;

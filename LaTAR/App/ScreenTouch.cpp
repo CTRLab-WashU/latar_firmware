@@ -7,6 +7,7 @@
 #include "cmsis_os.h"
 #include "config.h"
 #include "Commands.h"
+#include "Communication/wrapped_buffer.h"
 #include "Communication/ruart.h"
 #include "SyncTimer.h"
 #include "Indicator.h"
@@ -194,7 +195,7 @@ void ScreenTouch::runTapSequence(uint32_t count, uint32_t interval, uint8_t type
 	osSemaphoreRelease(touch_semaphore);
 }
 
-RingBuffer<char,64> conversion_buffer;
+RingBuffer<char,32> conversion_buffer;
 
 void ScreenTouch::runTapSequence(RxBuffer &buffer)
 {

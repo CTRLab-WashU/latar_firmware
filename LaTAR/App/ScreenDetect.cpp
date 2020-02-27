@@ -14,7 +14,7 @@
 osSemaphoreId detect_semaphore;
 
 uint32_t timestamp;
-char display_detect_buffer[64];
+char display_detect_buffer[32];
 
 void ScreenDetect::init()
 {	

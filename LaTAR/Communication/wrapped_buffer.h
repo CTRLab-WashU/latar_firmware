@@ -6,13 +6,12 @@
 
 struct wrapped_buffer
 {
-//	char data[64];
-	std::array<char, 64> data;	
+	uint8_t data[32];
 	
 	wrapped_buffer(const char * buffer)
 	{
 		int size = strlen(buffer);
-		for (int i = 0; i < 64; i++) {
+		for (int i = 0; i < 32; i++) {
 			if (i < size) {
 				data[i] = buffer[i];
 			} else {
@@ -23,19 +22,19 @@ struct wrapped_buffer
 	
 	wrapped_buffer()
 	{
-		for (int i=0; i<64; i++) {
+		for (int i=0; i<32; i++) {
 			data[i] = 0;
 		}
 	}
 	
 	int size()
 	{
-		for (int i = 0; i < 64; i++) {
+		for (int i = 0; i < 32; i++) {
 			if (data[i] == 0) {
 				return i;
 			}
 		}
-		return 64;
+		return 32;
 	}
 
 };

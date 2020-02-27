@@ -37,7 +37,7 @@ namespace ruart
 	std::function<void(RuartMsg&)> msg_callback;
 	RuartFrame frame;
 	
-	RingBuffer<wrapped_buffer, 64> tx_queue;
+	RingBuffer<wrapped_buffer, 32> tx_queue;
 	SoftTimer interval_timer;
 	ManualTimer tx_timer;
 
@@ -68,11 +68,7 @@ void ruart_init()
 }
 
 void ruart_write(RuartMsg msg)
-{
-	if (msg.size > 60) {
-		// todo: handle this
-	}
-	
+{	
 	wrapped_buffer tx;
 	tx.data[0] = frame_start;
 	tx.data[1] = msg.size + update_offset;
