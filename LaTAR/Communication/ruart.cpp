@@ -32,14 +32,15 @@ static const uint8_t update_offset	    = 0x30;
 
 // ----------------------------------------------------------------------------
 
-
 namespace ruart
 {
 	std::function<void(RuartMsg&)> msg_callback;
 	RuartFrame frame;
 	
 	RingBuffer<wrapped_buffer, 64> tx_queue;
-	SoftTimer tx_timer;
+	SoftTimer interval_timer;
+	ManualTimer tx_timer;
+
 	RuartMsg tx_msg;
 	bool tx_busy;
 	
@@ -56,7 +57,9 @@ void ruart_sync_timeout();
 void ruart_init()
 {
 	ruart::tx_busy = false;
-	ruart::tx_timer.init("ruart_tx_timer",1000,ruart_tx_timeout);
+	ruart::tx_timer.setDuration(1000);
+	ruart::interval_timer.init("ruart_tx_timer", 1000, ruart_tx_timeout);
+	ruart::interval_timer.start();
 	
 	SyncTimer::get().init(ruart_sync_timeout);
 	
@@ -84,7 +87,7 @@ void ruart_write(RuartMsg msg)
 
 	if (!ruart::tx_busy) {
 		ruart::tx_busy = true;
-		ruart::tx_timer.start();
+		ruart::tx_timer.reset();
 		uart_tx(ruart::tx_queue.peek());	
 	}
 }
@@ -160,7 +163,7 @@ void ruart_handle_byte(uint8_t byte)
 			
 			ruart::tx_queue.enqueue(st_buffer);
 			
-			ruart::tx_timer.start();
+			ruart::tx_timer.reset();
 			uart_tx(ruart::tx_queue.peek());
 			break;
 			
@@ -211,7 +214,7 @@ void ruart_handle_byte(uint8_t byte)
 			uart_tx(ruart::tx_queue.peek());
 		} else {
 			ruart::tx_busy = false;
-			ruart::tx_timer.stop();
+			ruart::tx_timer.reset();
 		}
 		break;
 		
@@ -246,9 +249,17 @@ void ruart_handle_byte(uint8_t byte)
 
 void ruart_tx_timeout()
 {
-	if (ruart::tx_busy) {
-		uart_tx(ruart::tx_queue.peek());
+	if (!ruart::tx_busy) {
+		return;
 	}
+	
+	if (!ruart::tx_timer.expired()) {
+		return;
+	}
+	
+	printd("resending last message\n");
+	ruart::tx_timer.reset();
+	uart_tx(ruart::tx_queue.peek());
 }
 
 void ruart_sync_timeout()
