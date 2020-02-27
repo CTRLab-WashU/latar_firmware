@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "Commands.h"
 #include "SyncTimer.h"
-#include "Communication/uart.h"
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "cmsis_os.h"
@@ -12,9 +11,7 @@
 #include "Communication/ruart.h"
 
 osSemaphoreId detect_semaphore;
-
 uint32_t timestamp;
-char display_detect_buffer[32];
 
 void ScreenDetect::init()
 {	
