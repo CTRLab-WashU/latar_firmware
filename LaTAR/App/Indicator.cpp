@@ -48,7 +48,7 @@ void indicator_init()
 	led[5] = Led(GPIOD, GPIO_PIN_10);
 	led[5].init();
 	
-	osThreadDef(indicator, indicator_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+	osThreadDef(indicator, indicator_thread, osPriorityNormal, 0, 512);
 	osThreadCreate(osThread(indicator), NULL);
 }
 

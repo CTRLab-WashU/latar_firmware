@@ -27,7 +27,7 @@ void ScreenTouch::init()
 	initPwm();
 	
 	// init threading
-	osThreadDef(screen_touch_thread, thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+	osThreadDef(screen_touch_thread, thread, osPriorityNormal, 0, 512);
 	osThreadCreate(osThread(screen_touch_thread), (void*)this);
 	
 	osSemaphoreDef(touch_semaphore);

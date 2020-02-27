@@ -84,7 +84,7 @@ void ScreenDetect::init()
 		return;
 	}
 	
-	osThreadDef(screen_detect_thread, thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+	osThreadDef(screen_detect_thread, thread, osPriorityNormal, 0, 512);
 	osThreadCreate(osThread(screen_detect_thread), (void*)this);
 	
 	osSemaphoreDef(detect_semaphore);
