@@ -5,6 +5,7 @@
 #include "task.h"
 
 #include "App/App.h"
+#include "config.h"
 
 static void StarvationThread(void const * argument);
 static void SystemClock_Config(void);
@@ -16,9 +17,9 @@ int main(void)
 	SystemClock_Config();
 	
 	// log version info
-	printf("hardware revision B1\n");
-	printf("firmware revision 0.0.1\n\n");
-	printf("using freertos %s \n\n", tskKERNEL_VERSION_NUMBER);
+	printd("hardware revision B1\n");
+	printd("firmware revision 0.0.1\n\n");
+	printd("using freertos %s \n\n", tskKERNEL_VERSION_NUMBER);
 	
 	// init starvation thread
 	osThreadDef(starvation, StarvationThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);

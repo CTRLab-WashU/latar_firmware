@@ -24,6 +24,7 @@
 #include "ruart_frame.h"
 #include "ruart.h"
 #include "uart.h"
+#include "config.h"
 
 #include "App/Indicator.h"
 
@@ -136,7 +137,7 @@ void ruart_handle_byte(uint8_t byte)
 		ruart_write_byte(Commands::CLOCK_SYNC);
 		ruart_syncing = true;
 		indicator_pulse_on();
-		printf("in clock sync mode\n");
+		printd("in clock sync mode\n");
 		ruart::tx_queue.clear();
 		return;
 	}
@@ -148,9 +149,9 @@ void ruart_handle_byte(uint8_t byte)
 			ruart_syncing = false;
 			ruart_write_byte(Commands::CLOCK_UPDATE);
 			
-			printf("out of clock sync mode\n");
+			printd("out of clock sync mode\n");
 			indicator_set_flash();
-			printf("sending queued timestamps\n");
+			printd("sending queued timestamps\n");
 			
 			st_buffer.data[0] = frame_start;
 			st_buffer.data[1] = 1 + update_offset;
@@ -167,7 +168,7 @@ void ruart_handle_byte(uint8_t byte)
 			ruart_timestamp_t = SyncTimer::get().getTimestamp();
 			ruart_write_byte(byte);
 			
-			printf("%d\n", ruart_timestamp_t);
+			printd("%d\n", ruart_timestamp_t);
 			
 			char stamp_buffer[32];
 			for (int i=0;i<32;i++){

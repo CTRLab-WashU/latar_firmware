@@ -896,5 +896,8 @@
     <ClInclude Include="Communication\wrapped_buffer.h">
       <Filter>Source files\Communication</Filter>
     </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

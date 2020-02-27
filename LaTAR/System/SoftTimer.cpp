@@ -1,4 +1,6 @@
 #include "SoftTimer.h"
+#include "config.h"
+
 #include <stdio.h>
 
 static bool timer_used[configTIMER_QUEUE_LENGTH];
@@ -27,7 +29,7 @@ bool SoftTimer::init(const char * name, const uint32_t duration, std::function<v
 	}
 	
 	if (id==-1) {
-		printf("Unable to add another timer to queue\r\n");
+		printd("unable to add another timer to queue\n");
 		return false;
 	}
 	
@@ -41,15 +43,13 @@ bool SoftTimer::init(const char * name, const uint32_t duration, std::function<v
 		(TimerCallbackFunction_t)&handle_callbacks);
 	
 	if (handle == NULL) {
-		printf("Unable to create timer\r\n");
+		printd("unable to create timer\n");
 		return false;
 	}
 	
 	this->valid = true;
 	timer_used[id] = true;
-	printf("timer '");
-	printf(name);
-	printf("' added\r\n");
+	printd("timer '%s' added\r\n", name);
 	
 	return true;
 }	
@@ -61,7 +61,7 @@ bool SoftTimer::start()
 	}
 	bool started = xTimerStart(handle, 100) == pdPASS;
 	if (!started) {
-		printf("Unable to start timer\r\n");
+		printd("unable to start timer\n");
 	}
 	return started;
 }

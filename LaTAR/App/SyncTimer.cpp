@@ -1,4 +1,5 @@
 #include "SyncTimer.h"
+#include "config.h"
 
 #include <iostream>
 
@@ -42,7 +43,7 @@ extern "C" void TIM2_IRQHandler()
 	{
 		// Clear the interrupt
 		__HAL_TIM_CLEAR_FLAG(&sync_timer_handle, TIM_FLAG_UPDATE);
-		printf("sync timer is now invalid\r\n");
+		printd("sync timer is now invalid\n");
 		sync_timer_is_valid = 0;
 		
 		if (sync_timer_callback!=0) {

@@ -93,6 +93,7 @@
     <ClInclude Include="Communication\ruart_message.h" />
     <ClInclude Include="Communication\uart.h" />
     <ClInclude Include="Communication\wrapped_buffer.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="DataStructures\ascii.h" />
     <ClInclude Include="DataStructures\RingBuffer.h" />
     <ClInclude Include="lwipopts.h" />

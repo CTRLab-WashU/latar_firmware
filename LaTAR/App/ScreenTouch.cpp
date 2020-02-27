@@ -5,6 +5,7 @@
 #include "task.h"
 #include "semphr.h"
 #include "cmsis_os.h"
+#include "config.h"
 #include "Commands.h"
 #include "Communication/ruart.h"
 #include "SyncTimer.h"
@@ -65,7 +66,7 @@ void ScreenTouch::initPwm()
 	// Commit timer init
 	if(HAL_TIM_PWM_Init(&pwm_handle) != HAL_OK)
 	{
-		printf("failed to init pwm timer");
+		printd("failed to init pwm timer");
 	}
 	
 	// Init CC1 
@@ -77,7 +78,7 @@ void ScreenTouch::initPwm()
 	// Commit PWM out settings
 	if(HAL_TIM_PWM_ConfigChannel(&pwm_handle, &sTimConfig, TIM_CHANNEL_1) != HAL_OK)
 	{
-		printf("failed to commit pwm config");
+		printd("failed to commit pwm config");
 	}
 }
 
@@ -141,7 +142,7 @@ void ScreenTouch::disable(uint8_t type)
 
 void ScreenTouch::tapCapacitive(TickType_t duration)
 {
-	printf("tapping capacitive\n");
+	printd("tapping capacitive\n");
 	indicator_pulse_on();
 	relay.set();
 	vTaskDelay(duration);
@@ -151,7 +152,7 @@ void ScreenTouch::tapCapacitive(TickType_t duration)
 
 void ScreenTouch::tapSolenoid(TickType_t duration)
 {
-	printf("tapping solenoid\n");
+	printd("tapping solenoid\n");
 	indicator_pulse_on();
 	HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
 	vTaskDelay(duration);
@@ -271,7 +272,7 @@ void ScreenTouch::thread(void const * argument)
 			params.interval = 0;
 			
 			ruart_write(Commands::TAP_STOP);
-			printf("tap stop\n");
+			printd("tap stop\n");
 		}
 	}
 	

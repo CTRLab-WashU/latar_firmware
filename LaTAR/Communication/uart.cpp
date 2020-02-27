@@ -55,7 +55,7 @@ void uart_init()
 	uart_handle.Init.OverSampling	= UART_OVERSAMPLING_16;
 	
 	if (HAL_UART_Init(&uart_handle) != HAL_OK) {
-		printf("failed to initialize uart");
+		printd("failed to initialize uart");
 		return;
 	}
 	
@@ -131,8 +131,8 @@ void uart_tx(uint8_t byte)
 {
 	uint8_t buff_t[1];
 	buff_t[0] = byte;
-	if (HAL_UART_Transmit(&uart_handle, (uint8_t *)buff_t, 1, HAL_MAX_DELAY) != HAL_OK) {
-		printf("uart write failed\n");
+	if (status != HAL_OK) {
+		printd("uart write failed\n");
 	}
 }
 
@@ -146,12 +146,12 @@ static void uart_tx_thread(void const * argument)
 			while (!uart_tx_queue.isEmpty()) {
 				tx_temp_buffer = uart_tx_queue.dequeue();
 				if (HAL_UART_Transmit(&uart_handle, (uint8_t *)tx_temp_buffer.data.data(), tx_temp_buffer.data.size(), HAL_MAX_DELAY) != HAL_OK) {
-					printf("uart write failed\n");
 				} else {
 //					printf("uart sent '");
 //					printf(tx_temp_buffer.data.data());
 //					printf("'\n");
 				}				
+					printd("uart write failed\n");
 			}
 			uart_tx_queue.clear();
 			uart_tx_blocked = false;

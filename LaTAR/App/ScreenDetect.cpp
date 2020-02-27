@@ -6,6 +6,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "cmsis_os.h"
+#include "config.h"
 #include "Indicator.h"
 
 #include "Communication/ruart.h"
@@ -71,7 +72,7 @@ void ScreenDetect::init()
 	adc_channel.Offset			= 0;
   
 	if (HAL_ADC_ConfigChannel(&adc_handle, &adc_channel) != HAL_OK) {
-		//printf("screen detect failed to configure adc channel");
+		printd("screen detect failed to configure adc channel");
 		return;
 	}
 	
@@ -79,7 +80,7 @@ void ScreenDetect::init()
 	HAL_NVIC_EnableIRQ(ADC_IRQn);
 	
 	if (HAL_ADC_Start_IT(&adc_handle) != HAL_OK) {
-		//printf("screen detect failed to start adc");
+		printd("screen detect failed to start adc");
 		return;
 	}
 	
@@ -139,7 +140,6 @@ void ScreenDetect::sendData(uint32_t index, uint32_t timestamp, uint8_t value)
 	ruart_write(Commands::DISPLAY_DATA, display_detect_buffer);
 }
 
-
 void ScreenDetect::thread(void const * argument)
 {	
 	ScreenDetect * detect = (ScreenDetect*)argument;
@@ -152,12 +152,11 @@ void ScreenDetect::thread(void const * argument)
 			if (detect->isDark) {
 				indicator_pulse_off();
 				detect->sendData(detect->index, timestamp, 0);
-				//printf("dark\n");
-			}
-			else {
+				printd("dark\n");
+			} else {
 				indicator_pulse_on();
 				detect->sendData(detect->index, timestamp, 1);
-				//printf("light\n");
+				printd("light\n");
 			}		
 		}
 	}

@@ -3,7 +3,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-
+#include "config.h"
 #include "Communication/ruart.h"
 
 #include "Indicator.h"
@@ -34,7 +34,7 @@ void App::commandReceived(RuartMsg &message)
 	{
 	
 	case Commands::APP_RESET:
-		printf("app reset\n");	
+		printd("app reset\n");	
 		ScreenDetect::get().disable();
 		ScreenTouch::get().disable(0);
 		ScreenTouch::get().disable(1);
@@ -42,7 +42,7 @@ void App::commandReceived(RuartMsg &message)
 		return;
 		
 	case Commands::DEVICE_INFO:
-		printf("device info\n");	
+		printd("device info\n");	
 		ScreenDetect::get().disable();
 		ScreenTouch::get().disable(0);
 		ScreenTouch::get().disable(1);
@@ -51,19 +51,19 @@ void App::commandReceived(RuartMsg &message)
 		return;
 		
 	case Commands::DISPLAY_START:
-		printf("display start\n");
+		printd("display start\n");
 		ScreenDetect::get().enable();
 		ruart_write(Commands::DISPLAY_START);
 		return;
 		
 	case Commands::DISPLAY_STOP:
 		ScreenDetect::get().disable();
-		printf("display stop\n");
+		printd("display stop\n");
 		ruart_write(Commands::DISPLAY_STOP);
 		return;
 		
 	case Commands::TAP_START:
-		printf("tap start\n");
+		printd("tap start\n");
 		ScreenTouch::get().runTapSequence(message.buffer);
 		return;
 		
