@@ -6,10 +6,9 @@
 #define DISABLE_PRINTF 0
 
 #if DISABLE_PRINTF
-#define printd() (0)
+#define printd(f, ...) (0)
 #else
-#define printd(f, ...) fprintf(stderr, f,  ## __VA_ARGS__)
+#define printd(f, ...) printf(f,  ## __VA_ARGS__)
 #endif	
-	
 	
 #endif
