@@ -9,7 +9,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-
+#include "config.h"
 #include "uart.h"
 
 #include <cstring>
