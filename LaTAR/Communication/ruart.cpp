@@ -47,6 +47,8 @@ namespace ruart
 	char byte_buffer[1];	
 }
 
+char ruart_temp_buffer[32];
+
 void ruart_handle_byte(uint8_t byte);
 void ruart_write_byte(uint8_t command);
 void ruart_tx_timeout();
@@ -97,17 +99,67 @@ void ruart_write(uint8_t command)
 	ruart_write(ruart::tx_msg);
 }
 
-void ruart_write(uint8_t command, const char * buffer)
+
+void ruart_write_tapdata(uint32_t index, uint32_t timestamp)
 {
-	ruart::tx_msg.command = command;
-	ruart::tx_msg.size = strlen(buffer);
+	sprintf(ruart_temp_buffer, "%d,%d", index, timestamp);
 	
-	for (int i=0; i<ruart::tx_msg.size;i++) {
-		ruart::tx_msg.buffer.enqueue(buffer[i]);
+	wrapped_buffer tx;
+			
+	tx.data[0] = frame_start;
+	tx.data[1] = 0;
+	tx.data[2] = Commands::TAP_DATA;
+			
+	uint8_t size = 0;
+	for (int i = 0; i < 32; i++) {
+		if (ruart_temp_buffer[i] != 0) {
+			tx.data[i + 3] = ruart_temp_buffer[i];
+			size = i;
+		}
 	}
-	ruart::tx_msg.size++;
+	tx.data[size + 4] = frame_stop;
+	size += (2 + update_offset);
+	tx.data[1] = size;
+		
+	ruart::tx_queue.enqueue(tx);
 	
-	ruart_write(ruart::tx_msg);
+	if (!ruart::tx_busy) {
+		ruart::tx_busy = true;
+		ruart::tx_timer.reset();
+		uart_tx(ruart::tx_queue.peek());	
+	}
+	
+}
+
+void ruart_write_displaydata(uint32_t index, uint32_t timestamp, uint8_t value)
+{
+	sprintf(ruart_temp_buffer, "%d,%d,%d", index, timestamp, value);
+	
+	wrapped_buffer tx;
+			
+	tx.data[0] = frame_start;
+	tx.data[1] = 0;
+	tx.data[2] = Commands::DISPLAY_DATA;
+			
+	uint8_t size = 0;
+	for (int i = 0; i < 32; i++) {
+		if (ruart_temp_buffer[i] != 0) {
+			tx.data[i + 3] = ruart_temp_buffer[i];
+			size = i;
+		}
+	}
+	tx.data[size + 4] = frame_stop;
+	size += (2 + update_offset);
+	tx.data[1] = size;
+	
+	ruart::tx_queue.enqueue(tx);
+	
+	if (!ruart::tx_busy) {
+		ruart::tx_busy = true;
+		ruart::tx_timer.reset();
+		uart_tx(ruart::tx_queue.peek());	
+	}
+	
 }
 
 void ruart_write_byte(uint8_t command)

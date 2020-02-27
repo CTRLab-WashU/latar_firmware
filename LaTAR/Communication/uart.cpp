@@ -66,8 +66,8 @@ void uart_init()
 	uart_tx_semaphore = osSemaphoreCreate(osSemaphore(uart_tx_sem), 1);
 	
 	// create tx thread
-	osThreadDef(uart_tx, uart_tx_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-	osThreadCreate(osThread(uart_tx), NULL);
+	//osThreadDef(uart_tx, uart_tx_thread, osPriorityNormal, 0, 1024);
+	//osThreadCreate(osThread(uart_tx), NULL);
 	
 	// create rx thread
 	osThreadDef(uart_rx, uart_rx_thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
@@ -87,23 +87,6 @@ void uart_unregister_callback()
 	process_byte = 0;
 }
 
-void uart_write(wrapped_buffer buffer)
-{
-	if (uart_tx_blocked || uart_tx_semaphore == NULL) {
-		return;
-	}
-	
-	uart_tx_queue.enqueue(buffer);
-	
-	osSemaphoreRelease(uart_tx_semaphore);
-}
-
-void uart_write(const char * buffer)
-{
-	wrapped_buffer wrap(buffer);
-	uart_write(wrap);	
-}
-
 static void uart_rx_thread(void const * argument)
 { 
 	uint8_t rx_temp_buffer[1];
@@ -120,17 +103,8 @@ static void uart_rx_thread(void const * argument)
 
 void uart_tx(wrapped_buffer buffer)
 { 
-//	printf(buffer.data.data());
-//	printf("\n");
-	if (HAL_UART_Transmit(&uart_handle, (uint8_t *)buffer.data.data(), buffer.data.size(), HAL_MAX_DELAY) != HAL_OK) {
-		printf("uart write failed\n");
-	}
-}
+	HAL_StatusTypeDef status = HAL_UART_Transmit(&uart_handle, buffer.data, buffer.size(), HAL_MAX_DELAY);
 
-void uart_tx(uint8_t byte)
-{
-	uint8_t buff_t[1];
-	buff_t[0] = byte;
 	if (status != HAL_OK) {
 		printd("uart write failed\n");
 	}
@@ -145,13 +119,9 @@ static void uart_tx_thread(void const * argument)
 			uart_tx_blocked = true;
 			while (!uart_tx_queue.isEmpty()) {
 				tx_temp_buffer = uart_tx_queue.dequeue();
-				if (HAL_UART_Transmit(&uart_handle, (uint8_t *)tx_temp_buffer.data.data(), tx_temp_buffer.data.size(), HAL_MAX_DELAY) != HAL_OK) {
-				} else {
-//					printf("uart sent '");
-//					printf(tx_temp_buffer.data.data());
-//					printf("'\n");
-				}				
+				if (HAL_UART_Transmit(&uart_handle, (uint8_t *)tx_temp_buffer.data, tx_temp_buffer.size(), HAL_MAX_DELAY) != HAL_OK) {
 					printd("uart write failed\n");
+				}			
 			}
 			uart_tx_queue.clear();
 			uart_tx_blocked = false;

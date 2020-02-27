@@ -13,7 +13,8 @@ typedef RingBuffer<uint8_t, 32> RxBuffer;
 
 void ruart_init();
 void ruart_write(uint8_t command);
-void ruart_write(uint8_t command, const char * buffer);
+void ruart_write_tapdata(uint32_t index, uint32_t timestamp);
+void ruart_write_displaydata(uint32_t index, uint32_t timestamp, uint8_t value);
 void ruart_register_callback(std::function<void(RuartMsg&)> callback_function);
 
 #endif

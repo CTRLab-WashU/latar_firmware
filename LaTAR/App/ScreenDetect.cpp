@@ -135,9 +135,7 @@ void ScreenDetect::update(uint32_t value)
 
 void ScreenDetect::sendData(uint32_t index, uint32_t timestamp, uint8_t value)
 {
-	sprintf(display_detect_buffer, "%d,%d,%d", index, timestamp, value);
-	
-	ruart_write(Commands::DISPLAY_DATA, display_detect_buffer);
+	ruart_write_displaydata(index, timestamp, value);
 }
 
 void ScreenDetect::thread(void const * argument)

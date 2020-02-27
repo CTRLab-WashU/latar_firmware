@@ -6,8 +6,8 @@
 
 void uart_init();
 void uart_tx(wrapped_buffer buffer);
-void uart_write(wrapped_buffer buffer);
-void uart_write(const char * buffer);
+//void uart_write(wrapped_buffer buffer);
+//void uart_write(const char * buffer);
 void uart_register_callback(void(*process)(uint8_t byte));
 
 #endif

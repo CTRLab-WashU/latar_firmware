@@ -228,12 +228,9 @@ void ScreenTouch::runTapSequence(RxBuffer &buffer)
 
 }
 
-char touch_tx_buffer[64];
-
 void ScreenTouch::sendData(uint32_t index, uint32_t timestamp)
 {
-	sprintf(touch_tx_buffer, "%d,%d", index, timestamp);
-	ruart_write(Commands::TAP_DATA, touch_tx_buffer);
+	ruart_write_tapdata(index, timestamp);
 }
 
 void ScreenTouch::thread(void const * argument)
