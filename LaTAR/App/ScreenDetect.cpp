@@ -92,6 +92,7 @@ void ScreenDetect::init()
 void ScreenDetect::enable()
 {
 	index = 0;
+	calibrated = false;
 	enabled = true;
 	indicator_pulse_off();
 	HAL_TIM_Base_Start(&timer_handle);
@@ -115,14 +116,44 @@ void ScreenDetect::update(uint32_t value)
 		return;
 	}
 	
-	if (isDark && value > threshold_light) {
+	if (value > 20000) {
+		return;
+	}
+	
+	if (!calibrated) {
+		calibration_buffer.enqueue(value);
+		if (calibration_buffer.isFull()) {
+			uint32_t size = calibration_buffer.size();
+			uint32_t value = 0;
+			
+			uint32_t max = 0;
+			uint32_t min = 20000;
+			uint32_t avg = 0;
+			
+			while (!calibration_buffer.isEmpty()) {
+				value = calibration_buffer.dequeue();
+				avg += (value / size);
+				if (value > max) {
+					max = value;
+				}
+				if (value < min) {
+					min = value;
+				}
+			}
+			threshold = (avg - (max-min));
+			calibrated = true;
+		}
+		return;
+	}
+	
+	if (isDark && value > threshold) {
 		timestamp = SyncTimer::get().getTimestamp();
 		index++;
 		isDark = false;
 		return;
 	}
 		
-	if (!isDark && value < threshold_dark) {
+	if (!isDark && value < threshold) {
 		timestamp = SyncTimer::get().getTimestamp();
 		index++;
 		isDark = true;

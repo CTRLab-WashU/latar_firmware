@@ -4,6 +4,7 @@
 #include <stm32f4xx_hal.h>
 #include "ScreenData.h"
 #include "System/SoftTimer.h"
+#include "DataStructures/RingBuffer.h"
 
 class ScreenDetect
 {
@@ -29,9 +30,9 @@ public:
 	ADC_HandleTypeDef adc_handle;
 	ScreenData data;
 	
-	uint32_t threshold_light = 5000;
-	uint32_t threshold_dark = 2000;
-	
+	bool calibrated = false;
+	RingBuffer<uint32_t, 32> calibration_buffer;
+	uint32_t threshold = 3500;
 	uint32_t index = 0;
 	
 	bool isDark = false;
