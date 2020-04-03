@@ -32,14 +32,6 @@ void App::commandReceived(RuartMsg &message)
 {
 	switch (message.command)
 	{
-	
-	case Commands::APP_RESET:
-		printd("app reset\n");	
-		ScreenDetect::get().disable();
-		ScreenTouch::get().disable(0);
-		ScreenTouch::get().disable(1);
-		indicator_set_flash();
-		return;
 		
 	case Commands::DEVICE_INFO:
 		printd("device info\n");	

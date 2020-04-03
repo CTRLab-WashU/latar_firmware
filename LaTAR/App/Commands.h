@@ -10,8 +10,8 @@ enum Commands
 	DEVICE_INFO			= 0x24,  // device information for reference
 	DEVICE_IDENTIFY		= 0x25,  // make device self identify for user
 	
-	APP_RESET			= 0x26,
-	APP_ERROR			= 0x27,
+	APP_ERROR			= 0x26,
+	APP_RESET			= 0x27,
 	
 	DISPLAY_START		= 0x28,
 	DISPLAY_DATA		= 0x29,

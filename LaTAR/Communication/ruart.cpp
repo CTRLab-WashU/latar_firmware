@@ -192,6 +192,12 @@ void ruart_handle_byte(uint8_t byte)
 		ruart::tx_queue.clear();
 		return;
 	}
+
+	if (byte == Commands::APP_RESET)
+	{
+		NVIC_SystemReset();
+		return;
+	}
 	
 	if (ruart_syncing) {
 		switch (byte)
