@@ -12,6 +12,7 @@ struct RunParameters
 	uint32_t count;
 	uint32_t interval;
 	uint8_t type;
+	uint8_t cap;
 	
 	char count_array[4];
 	char interval_array[4];
@@ -56,7 +57,7 @@ public:
 	void extendSolenoid();
 	void retractSolenoid();
 	
-	void runTapSequence(uint32_t count, uint32_t interval, uint8_t type);
+	void runTapSequence(uint32_t count, uint32_t interval, uint8_t type, uint8_t cap);
 	
 private:
 	static void thread(void const * argument);

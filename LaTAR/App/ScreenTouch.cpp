@@ -92,9 +92,15 @@ void ScreenTouch::enableCapacitiveTouch()
 
 void ScreenTouch::setCapacitance(int setting)
 {
-	for (int i = 0; i < 5; i++) {
-		bool on = (((setting >> i)  & 0x01) == 1);
-		if (on) {
+	if (setting < 0) {
+		setting = 0;
+	}
+	if (setting > 6) {
+		setting = 6;
+	}
+	
+	for (int i = 0; i <6; i++) {
+		if (i<setting) {
 			switches[i].set();		
 		}
 		else {
@@ -197,11 +203,12 @@ void ScreenTouch::retractSolenoid()
 	HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
 }
 
-void ScreenTouch::runTapSequence(uint32_t count, uint32_t interval, uint8_t type)
+void ScreenTouch::runTapSequence(uint32_t count, uint32_t interval, uint8_t type, uint8_t cap)
 {
 	params.count = count;
 	params.interval = interval;
 	params.type = type;
+	params.cap = cap;
 	enable(params.type);
 	osSemaphoreRelease(touch_semaphore);
 }
@@ -213,8 +220,8 @@ void ScreenTouch::sendData(uint32_t index, uint32_t timestamp)
 
 void ScreenTouch::startCalibration()
 {
-	enableCapacitiveTouch();
-	
+	calibrating = true;	
+	enabled = true;
 	osSemaphoreRelease(touch_semaphore);
 }
 
@@ -256,6 +263,7 @@ void ScreenTouch::normalRun(ScreenTouch * touch)
 	uint32_t timestamp;
 	
 	touch->enable(params.type);
+	touch->setCapacitance(params.cap);
 	
 	for (int i = 0; i < params.count; i++) {
 		timestamp = SyncTimer::get().getTimestamp();
@@ -280,18 +288,19 @@ void ScreenTouch::calibrationRun(ScreenTouch * touch)
 	
 	touch->enable(1);
 	
-	for (int i=0; i<32; i++) {
+	for (int i=0; i<6; i++) {
+		touch->setCapacitance(i);
+		vTaskDelayUntil(&prev_wake, interval_delay);
 		for (int j = 0; j < 5; j++) {
 			touch->tap(1, tap_delay);
 			vTaskDelayUntil(&prev_wake, interval_delay);
 		}
 		vTaskDelayUntil(&prev_wake, interval_delay);
-		touch->setCapacitance(i);
-		vTaskDelayUntil(&prev_wake, interval_delay);
 	}
 
 	touch->disable(1);
 	touch->calibrating = false;
+	touch->enabled = false;
 	ruart_write(Commands::CALIBRATION_TOUCH_STOP);
 	indicator_set_flash();
 	

@@ -17,6 +17,7 @@ uint32_t threshold = 0;
 uint32_t count = 0;
 uint32_t interval = 0;
 uint8_t  type = 0;
+uint8_t  cap = 0;
 
 void App::init()
 {		
@@ -69,8 +70,10 @@ void App::commandReceived(RuartMsg &message)
 		interval = parseUnsignedInt(message.buffer);
 		message.buffer.dequeue();
 		type = parseUnsignedInt(message.buffer);
+		message.buffer.dequeue();
+		cap = parseUnsignedInt(message.buffer);
 		
-		ScreenTouch::get().runTapSequence(count,interval,type);
+		ScreenTouch::get().runTapSequence(count,interval,type,cap);
 		return;
 		
 	case Commands::CALIBRATION_DISPLAY_START:
