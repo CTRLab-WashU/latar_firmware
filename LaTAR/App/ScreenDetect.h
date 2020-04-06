@@ -11,16 +11,19 @@ class ScreenDetect
 	ScreenDetect(){}
 public:
 	static ScreenDetect& get() {
-		static ScreenDetect    instance;
+		static ScreenDetect instance;
 		return instance;
 	}
 		
 	void init();
 	void update(uint32_t value);
 	
-	void enable();
+	void enable(uint32_t threshold);
 	void disable();
 	bool isEnabled();
+	
+	void startCalibration();
+	void stopCalibration();
 	
 	private:
 	static void thread(void const * argument);
@@ -30,8 +33,7 @@ public:
 	ADC_HandleTypeDef adc_handle;
 	ScreenData data;
 	
-	bool calibrated = false;
-	RingBuffer<uint32_t, 32> calibration_buffer;
+	bool calibrating = false;
 	uint32_t threshold = 3500;
 	uint32_t index = 0;
 	

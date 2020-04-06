@@ -39,6 +39,11 @@ public:
 	void enable(uint8_t type);
 	void disable(uint8_t type);
 	
+	void setCapacitance(int setting);
+	
+	void startCalibration();
+	void stopCalibration();
+	
 	void enableCapacitiveTouch();
 	void disableCapacitiveTouch();
 	void enableSolenoidTouch();
@@ -51,11 +56,13 @@ public:
 	void extendSolenoid();
 	void retractSolenoid();
 	
-	void runTapSequence(RxBuffer &buffer);
 	void runTapSequence(uint32_t count, uint32_t interval, uint8_t type);
 	
 private:
 	static void thread(void const * argument);
+	static void normalRun(ScreenTouch * touch);
+	static void calibrationRun(ScreenTouch * touch);
+	
 	void sendData(uint32_t index, uint32_t timestamp);
 	void initPwm();
 	
@@ -67,6 +74,7 @@ private:
 	char stop_buffer[2];
 	RunParameters params;
 	bool enabled;
+	bool calibrating = false;
 	
 };
 

@@ -12,6 +12,12 @@
 #include "Commands.h"
 #include "SyncTimer.h"
 
+uint32_t threshold = 0;
+
+uint32_t count = 0;
+uint32_t interval = 0;
+uint8_t  type = 0;
+
 void App::init()
 {		
 	ScreenDetect::get().init();
@@ -44,7 +50,8 @@ void App::commandReceived(RuartMsg &message)
 		
 	case Commands::DISPLAY_START:
 		printd("display start\n");
-		ScreenDetect::get().enable();
+		threshold = parseUnsignedInt(message.buffer);
+		ScreenDetect::get().enable(threshold);
 		ruart_write(Commands::DISPLAY_START);
 		return;
 		
@@ -56,14 +63,50 @@ void App::commandReceived(RuartMsg &message)
 		
 	case Commands::TAP_START:
 		printd("tap start\n");
-		ScreenTouch::get().runTapSequence(message.buffer);
+		
+		count = parseUnsignedInt(message.buffer);
+		message.buffer.dequeue();
+		interval = parseUnsignedInt(message.buffer);
+		message.buffer.dequeue();
+		type = parseUnsignedInt(message.buffer);
+		
+		ScreenTouch::get().runTapSequence(count,interval,type);
 		return;
 		
+	case Commands::CALIBRATION_DISPLAY_START:
+		printd("start display calibration\n");
+		ScreenDetect::get().startCalibration();
+		return;
+		
+	case Commands::CALIBRATION_DISPLAY_STOP:
+		printd("stop display calibration\n");
+		ScreenDetect::get().stopCalibration();
+		return;
+		
+	case Commands::CALIBRATION_TOUCH_START:
+		printd("start touch calibration\n");
+		ScreenTouch::get().startCalibration();
+		return;
+
 	default:
 		//ScreenTouch::get().runTapSequence(100,500,1);
 		return;
 		
 	}
+}
+
+RingBuffer<char, 32> conversion_buffer;
+
+uint32_t App::parseUnsignedInt(RxBuffer &buffer)
+{
+	while (buffer.peek() != ',' && buffer.peek() != 0)
+	{
+		conversion_buffer.enqueue(buffer.dequeue());
+	}
+	uint32_t value = strtoul(conversion_buffer.getRawBuffer().data(), NULL, 0);
+	conversion_buffer.clear();
+	
+	return value;
 }
 
 void App::syncTimeout()

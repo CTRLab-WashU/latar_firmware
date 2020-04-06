@@ -21,6 +21,7 @@ public:
 private:
 	static void commandReceived(RuartMsg &buffer);
 	static void syncTimeout();
+	static uint32_t parseUnsignedInt(RxBuffer &buffer);
 	
 	static void thread(void const * argument);
 };

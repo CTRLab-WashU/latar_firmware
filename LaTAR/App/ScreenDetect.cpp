@@ -12,6 +12,8 @@
 
 osSemaphoreId detect_semaphore;
 uint32_t timestamp;
+uint32_t minValue = 20000;
+uint32_t maxValue = 0;
 
 void ScreenDetect::init()
 {	
@@ -89,10 +91,10 @@ void ScreenDetect::init()
 	
 }	
 
-void ScreenDetect::enable()
+void ScreenDetect::enable(uint32_t threshold)
 {
 	index = 0;
-	calibrated = false;
+	calibrating = false;
 	enabled = true;
 	indicator_pulse_off();
 	HAL_TIM_Base_Start(&timer_handle);
@@ -105,44 +107,46 @@ void ScreenDetect::disable()
 	HAL_TIM_Base_Stop(&timer_handle);
 }
 
+void ScreenDetect::startCalibration()
+{
+	minValue = 20000;
+	maxValue = 0;
+	calibrating = true;
+	
+	indicator_pulse_on();
+	HAL_TIM_Base_Start(&timer_handle);
+}
+
+void ScreenDetect::stopCalibration()
+{
+	calibrating = false;
+	ruart_write_displaycalibrationdata(minValue, maxValue);
+	
+	indicator_set_flash();
+	HAL_TIM_Base_Stop(&timer_handle);
+}
+
 bool ScreenDetect::isEnabled()
 {
 	return enabled;
 }
 
 void ScreenDetect::update(uint32_t value)
-{		
-	if (!enabled) {
-		return;
-	}
-	
+{			
 	if (value > 20000) {
 		return;
 	}
 	
-	if (!calibrated) {
-		calibration_buffer.enqueue(value);
-		if (calibration_buffer.isFull()) {
-			uint32_t size = calibration_buffer.size();
-			uint32_t value = 0;
-			
-			uint32_t max = 0;
-			uint32_t min = 20000;
-			uint32_t avg = 0;
-			
-			while (!calibration_buffer.isEmpty()) {
-				value = calibration_buffer.dequeue();
-				avg += (value / size);
-				if (value > max) {
-					max = value;
-				}
-				if (value < min) {
-					min = value;
-				}
-			}
-			threshold = (avg - (max-min));
-			calibrated = true;
+	if (calibrating) {
+		if (value < minValue) {
+			minValue = value;
+		} else if (value > maxValue) {
+			maxValue = value;
 		}
+		return;
+	}
+	
+	if (!enabled) {
 		return;
 	}
 	
@@ -174,6 +178,8 @@ void ScreenDetect::thread(void const * argument)
 	for (;;) {
 		if (detect->isDark!= isDark) {
 			isDark = detect->isDark;
+			
+			printd("threshold = %u", detect->threshold);			
 			
 			if (detect->isDark) {
 				indicator_pulse_off();

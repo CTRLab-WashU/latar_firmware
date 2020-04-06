@@ -13,6 +13,7 @@
 #include "Indicator.h"
 
 osSemaphoreId touch_semaphore;
+static portTickType tap_delay = (150 / portTICK_RATE_MS);  
 
 void ScreenTouch::init()
 {		
@@ -87,9 +88,19 @@ void ScreenTouch::initPwm()
 void ScreenTouch::enableCapacitiveTouch()
 {
 	enabled = true;
-//	for (int i = 0; i < 5; i++) {
-//		switches[i].set();
-//	}
+}
+
+void ScreenTouch::setCapacitance(int setting)
+{
+	for (int i = 0; i < 5; i++) {
+		bool on = (((setting >> i)  & 0x01) == 1);
+		if (on) {
+			switches[i].set();		
+		}
+		else {
+			switches[i].reset();		
+		}
+	}
 }
 
 void ScreenTouch::disableCapacitiveTouch()
@@ -195,84 +206,95 @@ void ScreenTouch::runTapSequence(uint32_t count, uint32_t interval, uint8_t type
 	osSemaphoreRelease(touch_semaphore);
 }
 
-RingBuffer<char,32> conversion_buffer;
-
-void ScreenTouch::runTapSequence(RxBuffer &buffer)
-{
-	while (buffer.peek() != ',' && buffer.peek() != 0)
-	{
-		conversion_buffer.enqueue(buffer.dequeue());
-	}
-	params.count = strtoul(conversion_buffer.getRawBuffer().data(), NULL, 0);
-	conversion_buffer.clear();
-	buffer.dequeue();
-	
-	while (buffer.peek() != ',' && buffer.peek() != 0)
-	{
-		conversion_buffer.enqueue(buffer.dequeue());
-	}
-	params.interval = strtoul(conversion_buffer.getRawBuffer().data(), NULL, 0);
-	conversion_buffer.clear();
-	buffer.dequeue();
-	
-	while (buffer.peek() != ',' && buffer.peek() != 0)
-	{
-		conversion_buffer.enqueue(buffer.dequeue());
-	}
-	params.type = strtoul(conversion_buffer.getRawBuffer().data(), NULL, 0);
-	conversion_buffer.clear();
-	buffer.clear();
-	
-	enable(params.type);
-	osSemaphoreRelease(touch_semaphore);
-
-}
-
 void ScreenTouch::sendData(uint32_t index, uint32_t timestamp)
 {
 	ruart_write_tapdata(index, timestamp);
 }
 
+void ScreenTouch::startCalibration()
+{
+	enableCapacitiveTouch();
+	
+	osSemaphoreRelease(touch_semaphore);
+}
+
+void ScreenTouch::stopCalibration()
+{
+	
+}
+
 void ScreenTouch::thread(void const * argument)
 {	
 	ScreenTouch * touch = (ScreenTouch*)argument;
-	
-	portTickType tap_delay = (150 / portTICK_RATE_MS);  
-	portTickType interval_delay = (500 / portTICK_RATE_MS);  
-	RunParameters params;
-	uint32_t timestamp;
 		
-	// ------------------------------------------------------------------------
-	const portTickType detect_delay = (500 / portTICK_RATE_MS);       // 500 ms delay
-	
 	for(;;) {
 		if (osSemaphoreWait(touch_semaphore, osWaitForever) == osOK) {
 			if (!touch->enabled) {
 				continue;
 			}
+			
 			indicator_pulse_off();
-			params = touch->params;
-			touch->enable(params.type);
 			
-			interval_delay = (params.interval / portTICK_RATE_MS);  
-			portTickType prev_wake = xTaskGetTickCount();
-			
-			for (int i = 0; i < touch->params.count; i++) {
-				timestamp = SyncTimer::get().getTimestamp();
-				touch->tap(params.type, tap_delay);
-				
-				touch->sendData(i, timestamp);
-				vTaskDelayUntil(&prev_wake, interval_delay);
+			if (touch->calibrating) {
+				calibrationRun(touch);
+			} else {
+				normalRun(touch);
 			}
-			indicator_set_flash();
-			touch->disable(touch->params.type);
-			params.count = 0;
-			params.interval = 0;
 			
-			ruart_write(Commands::TAP_STOP);
-			printd("tap stop\n");
 		}
 	}
 	
+}
+
+void ScreenTouch::normalRun(ScreenTouch * touch)
+{	
+	printd("starting normal tap run\n");
+	
+	RunParameters params = touch->params;
+	portTickType interval_delay = (params.interval / portTICK_RATE_MS);  
+	portTickType prev_wake = xTaskGetTickCount();
+	uint32_t timestamp;
+	
+	touch->enable(params.type);
+	
+	for (int i = 0; i < params.count; i++) {
+		timestamp = SyncTimer::get().getTimestamp();
+		touch->tap(params.type, tap_delay);
+		touch->sendData(i, timestamp);
+		vTaskDelayUntil(&prev_wake, interval_delay);
+	}
+	
+	touch->disable(params.type);
+	ruart_write(Commands::TAP_STOP);
+	indicator_set_flash();
+	
+	printd("stopping normal tap run\n");
+}
+
+void ScreenTouch::calibrationRun(ScreenTouch * touch)
+{	
+	printd("starting touch calibraion run\n");
+	
+	portTickType interval_delay = (500 / portTICK_RATE_MS);  
+	portTickType prev_wake = xTaskGetTickCount();
+	
+	touch->enable(1);
+	
+	for (int i=0; i<32; i++) {
+		for (int j = 0; j < 5; j++) {
+			touch->tap(1, tap_delay);
+			vTaskDelayUntil(&prev_wake, interval_delay);
+		}
+		vTaskDelayUntil(&prev_wake, interval_delay);
+		touch->setCapacitance(i);
+		vTaskDelayUntil(&prev_wake, interval_delay);
+	}
+
+	touch->disable(1);
+	touch->calibrating = false;
+	ruart_write(Commands::CALIBRATION_TOUCH_STOP);
+	indicator_set_flash();
+	
+	printd("stopping touch calibraion run\n");
 }
 
