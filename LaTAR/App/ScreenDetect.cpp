@@ -12,7 +12,7 @@
 
 osSemaphoreId detect_semaphore;
 uint32_t timestamp;
-uint32_t minValue = 20000;
+uint32_t minValue = 200000;
 uint32_t maxValue = 0;
 
 void ScreenDetect::init()
@@ -93,6 +93,8 @@ void ScreenDetect::init()
 
 void ScreenDetect::enable(uint32_t threshold)
 {
+	this->threshold = threshold;
+	
 	index = 0;
 	calibrating = false;
 	enabled = true;
@@ -109,7 +111,7 @@ void ScreenDetect::disable()
 
 void ScreenDetect::startCalibration()
 {
-	minValue = 20000;
+	minValue = 200000;
 	maxValue = 0;
 	calibrating = true;
 	
@@ -133,9 +135,6 @@ bool ScreenDetect::isEnabled()
 
 void ScreenDetect::update(uint32_t value)
 {			
-	if (value > 20000) {
-		return;
-	}
 	
 	if (calibrating) {
 		if (value < minValue) {

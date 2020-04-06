@@ -76,6 +76,7 @@ void App::commandReceived(RuartMsg &message)
 	case Commands::CALIBRATION_DISPLAY_START:
 		printd("start display calibration\n");
 		ScreenDetect::get().startCalibration();
+		ruart_write(Commands::CALIBRATION_DISPLAY_START);
 		return;
 		
 	case Commands::CALIBRATION_DISPLAY_STOP:
