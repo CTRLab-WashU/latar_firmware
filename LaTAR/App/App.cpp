@@ -65,14 +65,14 @@ void App::commandReceived(RuartMsg &message)
 	case Commands::TAP_START:
 		printd("tap start\n");
 		
+		cap = parseUnsignedInt(message.buffer);
+		message.buffer.dequeue();
 		count = parseUnsignedInt(message.buffer);
 		message.buffer.dequeue();
 		interval = parseUnsignedInt(message.buffer);
 		message.buffer.dequeue();
 		type = parseUnsignedInt(message.buffer);
-		message.buffer.dequeue();
-		cap = parseUnsignedInt(message.buffer);
-		
+
 		ScreenTouch::get().runTapSequence(count,interval,type,cap);
 		return;
 		
