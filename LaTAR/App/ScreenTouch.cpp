@@ -291,10 +291,12 @@ void ScreenTouch::calibrationRun(ScreenTouch * touch)
 	for (int i=0; i<6; i++) {
 		touch->setCapacitance(i);
 		vTaskDelayUntil(&prev_wake, interval_delay);
+		vTaskDelayUntil(&prev_wake, interval_delay);
 		for (int j = 0; j < 5; j++) {
 			touch->tap(1, tap_delay);
 			vTaskDelayUntil(&prev_wake, interval_delay);
 		}
+		vTaskDelayUntil(&prev_wake, interval_delay);
 		vTaskDelayUntil(&prev_wake, interval_delay);
 	}
 
