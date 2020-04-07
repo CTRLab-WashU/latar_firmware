@@ -39,13 +39,7 @@ void ScreenTouch::init()
 }	
 
 void ScreenTouch::initPwm()
-{
-	bandaid.init(GPIOE, GPIO_PIN_9, GPIO_PULLUP);
-	
-	if (true) {
-		return;
-	}
-	
+{	
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_OC_InitTypeDef sTimConfig;
 	
@@ -57,7 +51,7 @@ void ScreenTouch::initPwm()
 	GPIO_InitStructure.Mode			= GPIO_MODE_AF_PP;
 	GPIO_InitStructure.Alternate	= GPIO_AF1_TIM1;
 	GPIO_InitStructure.Speed		= GPIO_SPEED_HIGH;
-	GPIO_InitStructure.Pull			= GPIO_PULLDOWN;
+	GPIO_InitStructure.Pull			= GPIO_PULLUP;
 	
 	// Power output 1 PD12
 	GPIO_InitStructure.Pin = GPIO_PIN_9;
@@ -67,7 +61,7 @@ void ScreenTouch::initPwm()
 	// Init Timer 1 to drive ADC1 conversions
 	pwm_handle.Instance				= TIM1;
 	pwm_handle.Init.Prescaler		= 42 - 1;
-	pwm_handle.Init.Period			= 90 - 1;
+	pwm_handle.Init.Period			= 80 - 1; 
 	pwm_handle.Init.ClockDivision	= TIM_CLOCKDIVISION_DIV1;
 	pwm_handle.Init.CounterMode		= TIM_COUNTERMODE_UP;
 	
@@ -81,7 +75,7 @@ void ScreenTouch::initPwm()
 	sTimConfig.OCMode				= TIM_OCMODE_PWM1;
 	sTimConfig.OCPolarity			= TIM_OCPOLARITY_HIGH;
 	sTimConfig.OCFastMode			= TIM_OCFAST_DISABLE;
-	sTimConfig.Pulse				= 80;
+	sTimConfig.Pulse				= 50-1;
 	
 	// Commit PWM out settings
 	if(HAL_TIM_PWM_ConfigChannel(&pwm_handle, &sTimConfig, TIM_CHANNEL_1) != HAL_OK)
@@ -132,7 +126,7 @@ void ScreenTouch::enableSolenoidTouch(void)
 void ScreenTouch::disableSolenoidTouch(void)
 {
 	enabled = false;
-	bandaid.reset();
+//	bandaid.reset();
 }
 	
 void ScreenTouch::enable(uint8_t type)
@@ -179,11 +173,9 @@ void ScreenTouch::tapSolenoid(TickType_t duration)
 {
 	printd("tapping solenoid\n");
 	indicator_pulse_on();
-	bandaid.set();
-	//HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
 	vTaskDelay(duration);
-	bandaid.reset();
-	//HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
 	indicator_pulse_off();
 }
 
@@ -204,14 +196,12 @@ void ScreenTouch::tap(uint8_t type, TickType_t duration)
 
 void ScreenTouch::extendSolenoid()
 {
-	bandaid.set();
-	//HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
 }
 
 void ScreenTouch::retractSolenoid()
 {
-	bandaid.reset();
-	//HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
 }
 
 void ScreenTouch::runTapSequence(uint32_t count, uint32_t interval, uint8_t type, uint8_t cap)
