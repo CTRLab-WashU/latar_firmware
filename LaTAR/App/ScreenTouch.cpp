@@ -40,6 +40,12 @@ void ScreenTouch::init()
 
 void ScreenTouch::initPwm()
 {
+	bandaid.init(GPIOE, GPIO_PIN_9, GPIO_PULLUP);
+	
+	if (true) {
+		return;
+	}
+	
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_OC_InitTypeDef sTimConfig;
 	
@@ -126,6 +132,7 @@ void ScreenTouch::enableSolenoidTouch(void)
 void ScreenTouch::disableSolenoidTouch(void)
 {
 	enabled = false;
+	bandaid.reset();
 }
 	
 void ScreenTouch::enable(uint8_t type)
@@ -172,9 +179,11 @@ void ScreenTouch::tapSolenoid(TickType_t duration)
 {
 	printd("tapping solenoid\n");
 	indicator_pulse_on();
-	HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
+	bandaid.set();
+	//HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
 	vTaskDelay(duration);
-	HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
+	bandaid.reset();
+	//HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
 	indicator_pulse_off();
 }
 
@@ -195,12 +204,14 @@ void ScreenTouch::tap(uint8_t type, TickType_t duration)
 
 void ScreenTouch::extendSolenoid()
 {
-	HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
+	bandaid.set();
+	//HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
 }
 
 void ScreenTouch::retractSolenoid()
 {
-	HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
+	bandaid.reset();
+	//HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
 }
 
 void ScreenTouch::runTapSequence(uint32_t count, uint32_t interval, uint8_t type, uint8_t cap)

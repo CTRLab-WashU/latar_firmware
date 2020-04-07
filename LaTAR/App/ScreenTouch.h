@@ -70,6 +70,7 @@ private:
 	TIM_HandleTypeDef pwm_handle;
 	Pin switches[5];
 	Pin relay;
+	Pin bandaid;
 	
 	char data_buffer[10];
 	char stop_buffer[2];
