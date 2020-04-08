@@ -75,7 +75,7 @@ void ScreenTouch::initPwm()
 	sTimConfig.OCMode				= TIM_OCMODE_PWM1;
 	sTimConfig.OCPolarity			= TIM_OCPOLARITY_HIGH;
 	sTimConfig.OCFastMode			= TIM_OCFAST_DISABLE;
-	sTimConfig.Pulse				= 50-1;
+	sTimConfig.Pulse				= 60-1;
 	
 	// Commit PWM out settings
 	if(HAL_TIM_PWM_ConfigChannel(&pwm_handle, &sTimConfig, TIM_CHANNEL_1) != HAL_OK)
