@@ -69,7 +69,6 @@
     <ClCompile Include="AdcInterrupt.cpp" />
     <ClCompile Include="App\App.cpp" />
     <ClCompile Include="App\Indicator.cpp" />
-    <ClCompile Include="App\ScreenData.cpp" />
     <ClCompile Include="App\ScreenDetect.cpp" />
     <ClCompile Include="App\ScreenTouch.cpp" />
     <ClCompile Include="App\SyncTimer.cpp" />
@@ -84,7 +83,6 @@
     <ClInclude Include="App\App.h" />
     <ClInclude Include="App\Commands.h" />
     <ClInclude Include="App\Indicator.h" />
-    <ClInclude Include="App\ScreenData.h" />
     <ClInclude Include="App\ScreenDetect.h" />
     <ClInclude Include="App\ScreenTouch.h" />
     <ClInclude Include="App\SyncTimer.h" />

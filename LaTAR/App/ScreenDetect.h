@@ -2,7 +2,6 @@
 #define APP_SCREEN_DETECT				  
 
 #include <stm32f4xx_hal.h>
-#include "ScreenData.h"
 #include "System/SoftTimer.h"
 #include "DataStructures/RingBuffer.h"
 
@@ -31,7 +30,6 @@ public:
 	
 	TIM_HandleTypeDef timer_handle;
 	ADC_HandleTypeDef adc_handle;
-	ScreenData data;
 	
 	bool calibrating = false;
 	uint32_t threshold = 3500;

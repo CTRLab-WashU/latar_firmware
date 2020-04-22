@@ -798,9 +798,6 @@
     <ClCompile Include="App\ScreenTouch.cpp">
       <Filter>Source files\App</Filter>
     </ClCompile>
-    <ClCompile Include="App\ScreenData.cpp">
-      <Filter>Source files\App</Filter>
-    </ClCompile>
     <ClCompile Include="System\ManualTimer.cpp">
       <Filter>Source files\System</Filter>
     </ClCompile>
@@ -846,9 +843,6 @@
       <Filter>Source files\App</Filter>
     </ClInclude>
     <ClInclude Include="App\ScreenTouch.h">
-      <Filter>Source files\App</Filter>
-    </ClInclude>
-    <ClInclude Include="App\ScreenData.h">
       <Filter>Source files\App</Filter>
     </ClInclude>
     <ClInclude Include="lwipopts.h">
