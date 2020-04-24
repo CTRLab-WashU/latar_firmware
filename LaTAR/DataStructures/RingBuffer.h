@@ -37,7 +37,7 @@ public:
 		// get item at head
 		T item = buffer[head];
 		// set item at head to be empty
-		buffer[head] = default_value;
+//		buffer[head] = default_value;
 		// move head foward
 		head = (head + 1) % capacity;
 		// return item
