@@ -216,7 +216,7 @@ void ScreenTouch::runTapSequence(uint32_t count, uint32_t interval, uint8_t type
 
 void ScreenTouch::sendData(uint32_t index, uint32_t timestamp)
 {
-	ruart_write_tapdata(index, timestamp);
+	ruart_write(Commands::TAP_DATA, index, timestamp);
 }
 
 void ScreenTouch::startCalibration()

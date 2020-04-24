@@ -122,7 +122,7 @@ void ScreenDetect::startCalibration()
 void ScreenDetect::stopCalibration()
 {
 	calibrating = false;
-	ruart_write_displaycalibrationdata(minValue, maxValue);
+	ruart_write(Commands::CALIBRATION_DISPLAY_STOP, minValue, maxValue);
 	
 	indicator_set_flash();
 	HAL_TIM_Base_Stop(&timer_handle);
@@ -166,7 +166,7 @@ void ScreenDetect::update(uint32_t value)
 
 void ScreenDetect::sendData(uint32_t index, uint32_t timestamp, uint8_t value)
 {
-	ruart_write_displaydata(index, timestamp, value);
+	ruart_write(Commands::DISPLAY_DATA, index, timestamp, value);
 }
 
 void ScreenDetect::thread(void const * argument)

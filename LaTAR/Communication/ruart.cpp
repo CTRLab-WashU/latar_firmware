@@ -69,88 +69,57 @@ void ruart_init()
 	uart_init();
 }
 
-void ruart_write(RuartMsg msg)
-{	
-	wrapped_buffer tx;
-	tx.data[0] = frame_start;
-	tx.data[1] = msg.size + update_offset;
-	tx.data[2] = msg.command;
-	
-	for (uint8_t i = 1; i < msg.size; i++) {
-		tx.data[i + 2] = msg.buffer.dequeue();
-	}
-	tx.data[msg.size + 2] = frame_stop;
-	
-	ruart::tx_queue.enqueue(tx);
-
-	if (!ruart::tx_busy) {
-		ruart::tx_busy = true;
-		ruart::tx_timer.reset();
-		uart_tx(ruart::tx_queue.peek());	
-	}
+void ruart_write(const uint8_t command, const uint32_t &v1, const uint32_t &v2, const uint32_t &v3)
+{
+	sprintf(ruart_temp_buffer, "%lu,%lu,%lu", v1, v2, v3);
+	ruart_write(command, ruart_temp_buffer);
 }
 
-void ruart_write(uint8_t command)
+void ruart_write(const uint8_t command, const uint32_t &v1, const uint32_t &v2)
 {
-	ruart::tx_msg.buffer.clear();
-	ruart::tx_msg.command = command;
-	ruart::tx_msg.size = 1;
-	
-	ruart_write(ruart::tx_msg);
+	sprintf(ruart_temp_buffer, "%lu,%lu", v1, v2);
+	ruart_write(command, ruart_temp_buffer);
 }
 
-
-void ruart_write_tapdata(uint32_t index, uint32_t timestamp)
+void ruart_write(const uint8_t command, const uint32_t &v1)
 {
-	sprintf(ruart_temp_buffer, "%d,%d", index, timestamp);
-	
+	sprintf(ruart_temp_buffer, "%lu", v1);
+	ruart_write(command, ruart_temp_buffer);
+}
+
+void ruart_write(const uint8_t command)
+{
+	ruart_temp_buffer[0] = 0;
+	ruart_write(command, ruart_temp_buffer);
+}
+
+void ruart_write(const uint8_t command, char *buffer)
+{
 	wrapped_buffer tx;
-			
-	tx.data[0] = frame_start;
-	tx.data[1] = 0;
-	tx.data[2] = Commands::TAP_DATA;
-			
-	uint8_t size = 0;
-	for (int i = 0; i < 32; i++) {
-		if (ruart_temp_buffer[i] != 0) {
-			tx.data[i + 3] = ruart_temp_buffer[i];
-			size = i;
+	uint8_t index = 3;
+	
+	int i;
+	for (i = 0; i < 32; i++) {
+		if (buffer[i] == 0) {
+			break;
 		}
-	}
-	tx.data[size + 4] = frame_stop;
-	size += (2 + update_offset);
-	tx.data[1] = size;
-		
-	ruart::tx_queue.enqueue(tx);
-	
-	if (!ruart::tx_busy) {
-		ruart::tx_busy = true;
-		ruart::tx_timer.reset();
-		uart_tx(ruart::tx_queue.peek());	
+		tx.data[index] = buffer[i];
+		index++;
 	}
 	
-}
-
-void ruart_write_displaydata(uint32_t index, uint32_t timestamp, uint8_t value)
-{
-	sprintf(ruart_temp_buffer, "%d,%d,%d", index, timestamp, value);
+	// reset the buffer
+	for (int j=i; j >= 0; j--) {
+		buffer[j] = 0;
+	}
 	
-	wrapped_buffer tx;
-			
+	
+	uint8_t size = index-2;
+	
 	tx.data[0] = frame_start;
-	tx.data[1] = 0;
-	tx.data[2] = Commands::DISPLAY_DATA;
-			
-	uint8_t size = 0;
-	for (int i = 0; i < 32; i++) {
-		if (ruart_temp_buffer[i] != 0) {
-			tx.data[i + 3] = ruart_temp_buffer[i];
-			size = i;
-		}
-	}
-	tx.data[size + 4] = frame_stop;
-	size += (2 + update_offset);
-	tx.data[1] = size;
+	tx.data[1] = size + update_offset;
+	tx.data[2] = command;
+	tx.data[index] = frame_stop;
+	
 	
 	ruart::tx_queue.enqueue(tx);
 	
@@ -159,38 +128,6 @@ void ruart_write_displaydata(uint32_t index, uint32_t timestamp, uint8_t value)
 		ruart::tx_timer.reset();
 		uart_tx(ruart::tx_queue.peek());	
 	}
-	
-}
-
-void ruart_write_displaycalibrationdata(uint32_t min, uint32_t max)
-{
-	sprintf(ruart_temp_buffer, "%d,%d", min, max);
-	
-	wrapped_buffer tx;
-			
-	tx.data[0] = frame_start;
-	tx.data[1] = 0;
-	tx.data[2] = Commands::CALIBRATION_DISPLAY_STOP;
-			
-	uint8_t size = 0;
-	for (int i = 0; i < 32; i++) {
-		if (ruart_temp_buffer[i] != 0) {
-			tx.data[i + 3] = ruart_temp_buffer[i];
-			size = i;
-		}
-	}
-	tx.data[size + 4] = frame_stop;
-	size += (2 + update_offset);
-	tx.data[1] = size;
-	
-	ruart::tx_queue.enqueue(tx);
-	
-	if (!ruart::tx_busy) {
-		ruart::tx_busy = true;
-		ruart::tx_timer.reset();
-		uart_tx(ruart::tx_queue.peek());	
-	}
-	
 }
 
 void ruart_write_byte(uint8_t command)
@@ -256,14 +193,14 @@ void ruart_handle_byte(uint8_t byte)
 			ruart_timestamp_t = SyncTimer::get().getTimestamp();
 			ruart_write_byte(byte);
 			
-			printd("%d\n", ruart_timestamp_t);
+			printd("%lu\n", ruart_timestamp_t);
 			
 			char stamp_buffer[32];
 			for (int i=0;i<32;i++){
 				stamp_buffer[i] = 0;
 			}
 			
-			std::snprintf(stamp_buffer, 32, "%u", ruart_timestamp_t);
+			std::snprintf(stamp_buffer, 32, "%lu", ruart_timestamp_t);
 			
 			wrapped_buffer tx;
 			
