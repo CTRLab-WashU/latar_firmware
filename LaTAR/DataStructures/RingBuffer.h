@@ -7,7 +7,7 @@
 template <typename T, uint32_t capacity> 
 class RingBuffer
 {
-	std::array<T, capacity> buffer;
+	std::array<T, capacity+1> buffer;
 	T default_value;
 	uint32_t head;
 	uint32_t tail;
@@ -56,7 +56,7 @@ public:
 	}
 	
 		
-	std::array<T, capacity>& getRawBuffer()
+	std::array<T, capacity+1>& getRawBuffer()
 	{
 		return buffer;
 	}
