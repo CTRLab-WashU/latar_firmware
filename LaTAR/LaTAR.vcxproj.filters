@@ -810,9 +810,6 @@
     <ClCompile Include="App\App.cpp">
       <Filter>Source files\App</Filter>
     </ClCompile>
-    <ClCompile Include="AdcInterrupt.cpp">
-      <Filter>Source files\App</Filter>
-    </ClCompile>
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c">
       <Filter>Source files\Device-specific files\FreeRTOS</Filter>
     </ClCompile>
@@ -832,6 +829,12 @@
       <Filter>Source files\Communication</Filter>
     </ClCompile>
     <ClCompile Include="System\SoftTimer.cpp">
+      <Filter>Source files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="System\FirFilter.cpp">
+      <Filter>Source files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="System\ADC.cpp">
       <Filter>Source files\System</Filter>
     </ClCompile>
   </ItemGroup>
@@ -892,6 +895,12 @@
     </ClInclude>
     <ClInclude Include="config.h">
       <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="System\FirFilter.h">
+      <Filter>Source files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\ADC.h">
+      <Filter>Source files\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

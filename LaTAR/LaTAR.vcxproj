@@ -66,7 +66,6 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ItemGroup>
-    <ClCompile Include="AdcInterrupt.cpp" />
     <ClCompile Include="App\App.cpp" />
     <ClCompile Include="App\Indicator.cpp" />
     <ClCompile Include="App\ScreenDetect.cpp" />
@@ -75,6 +74,8 @@
     <ClCompile Include="Communication\ruart.cpp" />
     <ClCompile Include="Communication\uart.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="System\ADC.cpp" />
+    <ClCompile Include="System\FirFilter.cpp" />
     <ClCompile Include="System\Led.cpp" />
     <ClCompile Include="System\ManualTimer.cpp" />
     <ClCompile Include="System\Pin.cpp" />
@@ -95,6 +96,8 @@
     <ClInclude Include="DataStructures\ascii.h" />
     <ClInclude Include="DataStructures\RingBuffer.h" />
     <ClInclude Include="lwipopts.h" />
+    <ClInclude Include="System\ADC.h" />
+    <ClInclude Include="System\FirFilter.h" />
     <ClInclude Include="System\Led.h" />
     <ClInclude Include="System\ManualTimer.h" />
     <ClInclude Include="System\Pin.h" />
