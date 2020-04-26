@@ -142,6 +142,8 @@ void ScreenTouch::enable(TouchType type)
 	default:
 		break;
 	}
+	
+	enabled = true;
 }
 
 void ScreenTouch::disable(TouchType type)
