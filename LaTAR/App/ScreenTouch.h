@@ -7,11 +7,18 @@
 #include "task.h"
 #include "Communication/ruart.h"
 
+
+enum TouchType {
+	SolenoidTouch,
+	CapacitiveTouch
+};
+
 struct RunParameters
 {
-	uint32_t count;
+	TouchType type;
+	
 	uint32_t interval;
-	uint8_t type;
+	uint32_t count;
 	uint8_t cap;
 	
 	char count_array[4];
@@ -23,7 +30,7 @@ class ScreenTouch
 	ScreenTouch(){}
 public:
 	static ScreenTouch& get() {
-		static ScreenTouch    instance;
+		static ScreenTouch instance;
 		return instance;
 	}
 	
@@ -32,8 +39,8 @@ public:
 		
 	void init();
 	
-	void enable(uint8_t type);
-	void disable(uint8_t type);
+	void enable(TouchType type);
+	void disable(TouchType type);
 	
 	void setCapacitance(int setting);
 	
@@ -52,7 +59,7 @@ public:
 	void extendSolenoid();
 	void retractSolenoid();
 	
-	void runTapSequence(uint32_t count, uint32_t interval, uint8_t type, uint8_t cap);
+	void tapSequence(TouchType type, uint32_t count, uint32_t interval, uint8_t cap = 0);
 	
 private:
 	static void thread(void const * argument);

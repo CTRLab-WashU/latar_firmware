@@ -133,10 +133,10 @@ void ScreenTouch::enable(uint8_t type)
 {
 	switch (type)
 	{
-	case 0:
 		enableSolenoidTouch();
+	case TouchType::SolenoidTouch:
 		break;
-	case 1:
+	case TouchType::CapacitiveTouch:
 		enableCapacitiveTouch();
 		break;
 	default:
@@ -148,10 +148,10 @@ void ScreenTouch::disable(uint8_t type)
 {
 	switch (type)
 	{
-	case 0:
 		disableSolenoidTouch();
+	case TouchType::SolenoidTouch:
 		break;
-	case 1:
+	case TouchType::CapacitiveTouch:
 		disableCapacitiveTouch();
 		break;
 	default:
@@ -183,10 +183,10 @@ void ScreenTouch::tap(uint8_t type, TickType_t duration)
 {
 	switch (type)
 	{
-	case 0:
+	case SolenoidTouch:
 		tapSolenoid(duration);
 		break;
-	case 1:
+	case CapacitiveTouch:
 		tapCapacitive(duration);
 		break;
 	default:
@@ -204,12 +204,13 @@ void ScreenTouch::retractSolenoid()
 	HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
 }
 
-void ScreenTouch::runTapSequence(uint32_t count, uint32_t interval, uint8_t type, uint8_t cap)
+void ScreenTouch::tapSequence(TouchType type, uint32_t count, uint32_t interval, uint8_t cap)
 {
-	params.count = count;
 	params.interval = interval;
+	params.count = count;
 	params.type = type;
 	params.cap = cap;
+	
 	enable(params.type);
 	osSemaphoreRelease(touch_semaphore);
 }
@@ -287,7 +288,7 @@ void ScreenTouch::calibrationRun(ScreenTouch * touch)
 	portTickType interval_delay = (500 / portTICK_RATE_MS);  
 	portTickType prev_wake = xTaskGetTickCount();
 	
-	touch->enable(1);
+	touch->enable(TouchType::CapacitiveTouch);
 	
 	for (int i=0; i<6; i++) {
 		touch->setCapacitance(i);
@@ -301,7 +302,7 @@ void ScreenTouch::calibrationRun(ScreenTouch * touch)
 		vTaskDelayUntil(&prev_wake, interval_delay);
 	}
 
-	touch->disable(1);
+	touch->disable(TouchType::CapacitiveTouch);
 	touch->calibrating = false;
 	touch->enabled = false;
 	ruart_write(Commands::CALIBRATION_TOUCH_STOP);

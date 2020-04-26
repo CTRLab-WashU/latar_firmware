@@ -14,9 +14,9 @@
 
 uint32_t threshold = 0;
 
-uint32_t count = 0;
+TouchType type;
 uint32_t interval = 0;
-uint8_t  type = 0;
+uint32_t count = 0;
 uint8_t  cap = 0;
 
 void App::init()
@@ -43,8 +43,8 @@ void App::commandReceived(RuartMsg &message)
 	case Commands::DEVICE_INFO:
 		printd("device info\n");	
 		ScreenDetect::get().disable();
-		ScreenTouch::get().disable(0);
-		ScreenTouch::get().disable(1);
+		ScreenTouch::get().disable(TouchType::SolenoidTouch);
+		ScreenTouch::get().disable(TouchType::CapacitiveTouch);
 		indicator_set_flash();
 		ruart_write(Commands::DEVICE_INFO);
 		return;
@@ -71,9 +71,9 @@ void App::commandReceived(RuartMsg &message)
 		message.buffer.dequeue();
 		interval = parseUnsignedInt(message.buffer);
 		message.buffer.dequeue();
-		type = parseUnsignedInt(message.buffer);
+		type = (TouchType)parseUnsignedInt(message.buffer);
 
-		ScreenTouch::get().runTapSequence(count,interval,type,cap);
+		ScreenTouch::get().tapSequence(type, count, interval, cap);
 		return;
 		
 	case Commands::CALIBRATION_DISPLAY_START:
@@ -93,7 +93,6 @@ void App::commandReceived(RuartMsg &message)
 		return;
 
 	default:
-		//ScreenTouch::get().runTapSequence(100,500,1);
 		return;
 		
 	}
