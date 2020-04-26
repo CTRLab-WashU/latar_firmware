@@ -27,7 +27,13 @@ struct RunParameters
 
 class ScreenTouch
 {
-	ScreenTouch(){}
+	RunParameters params;
+	Pin switches[5];
+	Pin relay;
+	
+	bool calibrating;
+	bool enabled;
+	
 public:
 	static ScreenTouch& get() {
 		static ScreenTouch instance;
@@ -59,23 +65,15 @@ public:
 	void tapSequence(TouchType type, uint32_t count, uint32_t interval, uint8_t cap = 0);
 	
 private:
+	ScreenTouch() {}
+	
 	static void thread(void const * argument);
 	static void normalRun(ScreenTouch * touch);
 	static void calibrationRun(ScreenTouch * touch);
 	
 	void sendData(uint32_t index, uint32_t timestamp);
 	void initPwm();
-	
 	TIM_HandleTypeDef pwm_handle;
-	Pin switches[5];
-	Pin relay;
-	
-	char data_buffer[10];
-	char stop_buffer[2];
-	RunParameters params;
-	bool enabled;
-	bool calibrating = false;
-	
 };
 
 #endif
