@@ -70,6 +70,7 @@
     <ClCompile Include="App\Indicator.cpp" />
     <ClCompile Include="App\ScreenDetect.cpp" />
     <ClCompile Include="App\ScreenTouch.cpp" />
+    <ClCompile Include="App\Solenoid.cpp" />
     <ClCompile Include="App\SyncTimer.cpp" />
     <ClCompile Include="Communication\ruart.cpp" />
     <ClCompile Include="Communication\uart.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="App\Indicator.h" />
     <ClInclude Include="App\ScreenDetect.h" />
     <ClInclude Include="App\ScreenTouch.h" />
+    <ClInclude Include="App\Solenoid.h" />
     <ClInclude Include="App\SyncTimer.h" />
     <ClInclude Include="Communication\ruart.h" />
     <ClInclude Include="Communication\ruart_frame.h" />

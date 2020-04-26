@@ -834,6 +834,9 @@
     <ClCompile Include="System\FirFilter.cpp">
       <Filter>Source files\System</Filter>
     </ClCompile>
+    <ClCompile Include="App\Solenoid.cpp">
+      <Filter>Source files\App</Filter>
+    </ClCompile>
     <ClCompile Include="System\ADC.cpp">
       <Filter>Source files\System</Filter>
     </ClCompile>
@@ -898,6 +901,9 @@
     </ClInclude>
     <ClInclude Include="System\FirFilter.h">
       <Filter>Source files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Solenoid.h">
+      <Filter>Source files\App</Filter>
     </ClInclude>
     <ClInclude Include="System\ADC.h">
       <Filter>Source files\System</Filter>
