@@ -219,15 +219,13 @@ void ScreenTouch::sendData(uint32_t index, uint32_t timestamp)
 {
 	ruart_write(Commands::TAP_DATA, index, timestamp);
 }
-
-void ScreenTouch::startCalibration()
+void ScreenTouch::calibrate()
 {
 	calibrating = true;	
 	enabled = true;
 	osSemaphoreRelease(touch_semaphore);
 }
 
-void ScreenTouch::stopCalibration()
 {
 	
 }

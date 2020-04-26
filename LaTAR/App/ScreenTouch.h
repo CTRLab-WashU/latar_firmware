@@ -43,15 +43,12 @@ public:
 	void disable(TouchType type);
 	
 	void setCapacitance(int setting);
-	
-	void startCalibration();
-	void stopCalibration();
-	
 	void enableCapacitiveTouch();
 	void disableCapacitiveTouch();
 	void enableSolenoidTouch();
 	void disableSolenoidTouch();
 	
+	void calibrate();
 	void tap(uint8_t type, TickType_t duration);
 	void tapCapacitive(TickType_t duration);
 	void tapSolenoid(TickType_t duration);
