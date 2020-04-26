@@ -89,7 +89,7 @@ void App::commandReceived(RuartMsg &message)
 		
 	case Commands::CALIBRATION_TOUCH_START:
 		printd("start touch calibration\n");
-		ScreenTouch::get().startCalibration();
+		ScreenTouch::get().calibrate();
 		return;
 
 	default:

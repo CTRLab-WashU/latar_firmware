@@ -129,7 +129,7 @@ void ScreenTouch::disableSolenoidTouch(void)
 //	bandaid.reset();
 }
 	
-void ScreenTouch::enable(uint8_t type)
+void ScreenTouch::enable(TouchType type)
 {
 	switch (type)
 	{
@@ -144,7 +144,7 @@ void ScreenTouch::enable(uint8_t type)
 	}
 }
 
-void ScreenTouch::disable(uint8_t type)
+void ScreenTouch::disable(TouchType type)
 {
 	switch (type)
 	{
@@ -224,10 +224,6 @@ void ScreenTouch::calibrate()
 	calibrating = true;	
 	enabled = true;
 	osSemaphoreRelease(touch_semaphore);
-}
-
-{
-	
 }
 
 void ScreenTouch::thread(void const * argument)
