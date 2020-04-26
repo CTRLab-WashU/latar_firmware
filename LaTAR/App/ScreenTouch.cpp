@@ -12,11 +12,16 @@
 #include "SyncTimer.h"
 #include "Indicator.h"
 
-osSemaphoreId touch_semaphore;
 static portTickType tap_delay = (150 / portTICK_RATE_MS);  
+osSemaphoreId touch_semaphore;
+static uint32_t index;
 
 void ScreenTouch::init()
 {		
+	calibrating = false;
+	enabled = false;
+	index = 0;
+	
 	// init gpio
 	relay.init(GPIOB, GPIO_PIN_4, GPIO_PULLUP);
 	
@@ -34,8 +39,6 @@ void ScreenTouch::init()
 	
 	osSemaphoreDef(touch_semaphore);
 	touch_semaphore = osSemaphoreCreate(osSemaphore(touch_semaphore), 1);
-	
-	enabled = false;
 }	
 
 void ScreenTouch::initPwm()
@@ -148,6 +151,8 @@ void ScreenTouch::enable(TouchType type)
 
 void ScreenTouch::disable(TouchType type)
 {
+	enabled = false;
+	
 	switch (type)
 	{
 		disableSolenoidTouch();
@@ -226,6 +231,13 @@ void ScreenTouch::calibrate()
 	calibrating = true;	
 	enabled = true;
 	osSemaphoreRelease(touch_semaphore);
+}
+
+void ScreenTouch::solenoidCallback(void)
+{
+	ruart_write(Commands::TAP_DATA, index, SyncTimer::get().getTimestamp());
+	index++;
+	printd("tapped\n");
 }
 
 void ScreenTouch::thread(void const * argument)

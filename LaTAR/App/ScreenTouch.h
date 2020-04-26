@@ -67,6 +67,8 @@ public:
 private:
 	ScreenTouch() {}
 	
+	static void solenoidCallback(void);
+
 	static void thread(void const * argument);
 	static void normalRun(ScreenTouch * touch);
 	static void calibrationRun(ScreenTouch * touch);
