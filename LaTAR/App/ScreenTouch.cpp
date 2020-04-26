@@ -121,23 +121,16 @@ void ScreenTouch::disableCapacitiveTouch()
 	}
 }
 
-void ScreenTouch::enableSolenoidTouch(void)
+void ScreenTouch::enable(TouchType type)
 {
-	enabled = true;
-}
-
-void ScreenTouch::disableSolenoidTouch(void)
-{
-	enabled = false;
-//	bandaid.reset();
-}
+	index = 0;
 	
 void ScreenTouch::enable(TouchType type)
 {
 	switch (type)
 	{
-		enableSolenoidTouch();
 	case TouchType::SolenoidTouch:
+		solenoid.enable();
 		break;
 	case TouchType::CapacitiveTouch:
 		enableCapacitiveTouch();
@@ -155,8 +148,8 @@ void ScreenTouch::disable(TouchType type)
 	
 	switch (type)
 	{
-		disableSolenoidTouch();
 	case TouchType::SolenoidTouch:
+		solenoid.disable();
 		break;
 	case TouchType::CapacitiveTouch:
 		disableCapacitiveTouch();
@@ -199,16 +192,6 @@ void ScreenTouch::tap(uint8_t type, TickType_t duration)
 	default:
 		break;
 	}
-}
-
-void ScreenTouch::extendSolenoid()
-{
-	HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
-}
-
-void ScreenTouch::retractSolenoid()
-{
-	HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
 }
 
 void ScreenTouch::tapSequence(TouchType type, uint32_t count, uint32_t interval, uint8_t cap)

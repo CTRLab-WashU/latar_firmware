@@ -6,6 +6,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "Communication/ruart.h"
+#include "Solenoid.h"
 
 
 enum TouchType {
@@ -28,6 +29,7 @@ struct RunParameters
 class ScreenTouch
 {
 	RunParameters params;
+	Solenoid solenoid;
 	Pin switches[5];
 	Pin relay;
 	
@@ -51,16 +53,11 @@ public:
 	void setCapacitance(int setting);
 	void enableCapacitiveTouch();
 	void disableCapacitiveTouch();
-	void enableSolenoidTouch();
-	void disableSolenoidTouch();
 	
 	void calibrate();
 	void tap(uint8_t type, TickType_t duration);
 	void tapCapacitive(TickType_t duration);
 	void tapSolenoid(TickType_t duration);
-	
-	void extendSolenoid();
-	void retractSolenoid();
 	
 	void tapSequence(TouchType type, uint32_t count, uint32_t interval, uint8_t cap = 0);
 	
