@@ -20,11 +20,6 @@ struct RunParameters
 
 class ScreenTouch
 {
-	enum Status {
-		Status_Init,
-		Status_Okay,
-		Status_Error
-	};
 	ScreenTouch(){}
 public:
 	static ScreenTouch& get() {
