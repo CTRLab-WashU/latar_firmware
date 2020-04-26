@@ -43,18 +43,19 @@ void Solenoid::init()
 
 void Solenoid::initDrive()
 {	
+	GPIO_InitTypeDef GPIO_InitStructure;
+	TIM_OC_InitTypeDef sTimConfig;
+	
 	// init gpio
 	__GPIOE_CLK_ENABLE();
 	__TIM1_CLK_ENABLE();
 	
-	
-	GPIO_InitTypeDef gpio_config;
-	gpio_config.Mode		= GPIO_MODE_AF_PP;
-	gpio_config.Alternate	= GPIO_AF1_TIM1;
-	gpio_config.Speed		= GPIO_SPEED_HIGH;
-	gpio_config.Pull		= GPIO_PULLUP;
-	gpio_config.Pin			= GPIO_PIN_9;
-	HAL_GPIO_Init(GPIOE, &gpio_config);
+	GPIO_InitStructure.Mode			= GPIO_MODE_AF_PP;
+	GPIO_InitStructure.Alternate	= GPIO_AF1_TIM1;
+	GPIO_InitStructure.Speed		= GPIO_SPEED_HIGH;
+	GPIO_InitStructure.Pull			= GPIO_PULLUP;
+	GPIO_InitStructure.Pin			= GPIO_PIN_9;
+	HAL_GPIO_Init(GPIOE, &GPIO_InitStructure);
 	
 	// init timer to drive adc conversions
 	drive_tim_handle.Instance			= TIM1;
@@ -151,10 +152,6 @@ void Solenoid::initSense()
 	}
 
 	register_adc_callback(ADC1, &sense_adc_handle, sense_irq_handler);
-	
-//	if (HAL_TIM_Base_Start(&sense_tim_handle) != HAL_OK) {
-//		printd("solenoid failed to start sense timer");
-//	}
 	
 }
 

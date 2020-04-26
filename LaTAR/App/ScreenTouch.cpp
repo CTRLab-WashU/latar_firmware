@@ -31,7 +31,6 @@ void ScreenTouch::init()
 	switches[3].init(GPIOD, GPIO_PIN_15, GPIO_PULLUP);
 	switches[4].init(GPIOC, GPIO_PIN_7, GPIO_PULLUP);
 	
-	initPwm();
 	solenoid.init();
 	solenoid.bind(solenoidCallback);
 	
@@ -42,53 +41,6 @@ void ScreenTouch::init()
 	osSemaphoreDef(touch_semaphore);
 	touch_semaphore = osSemaphoreCreate(osSemaphore(touch_semaphore), 1);
 }	
-
-void ScreenTouch::initPwm()
-{	
-	GPIO_InitTypeDef GPIO_InitStructure;
-	TIM_OC_InitTypeDef sTimConfig;
-	
-	// Enable clocks
-	__GPIOE_CLK_ENABLE();
-	__TIM1_CLK_ENABLE();
-	
-	// Init GPIO
-	GPIO_InitStructure.Mode			= GPIO_MODE_AF_PP;
-	GPIO_InitStructure.Alternate	= GPIO_AF1_TIM1;
-	GPIO_InitStructure.Speed		= GPIO_SPEED_HIGH;
-	GPIO_InitStructure.Pull			= GPIO_PULLUP;
-	
-	// Power output 1 PD12
-	GPIO_InitStructure.Pin = GPIO_PIN_9;
-	HAL_GPIO_Init(GPIOE, &GPIO_InitStructure);
-	
-	// Init Timer
-	// Init Timer 1 to drive ADC1 conversions
-	pwm_handle.Instance				= TIM1;
-	pwm_handle.Init.Prescaler		= 42 - 1;
-	pwm_handle.Init.Period			= 80 - 1; 
-	pwm_handle.Init.ClockDivision	= TIM_CLOCKDIVISION_DIV1;
-	pwm_handle.Init.CounterMode		= TIM_COUNTERMODE_UP;
-	
-	// Commit timer init
-	if(HAL_TIM_PWM_Init(&pwm_handle) != HAL_OK)
-	{
-		printd("failed to init pwm timer");
-	}
-	
-	// Init CC1 
-	sTimConfig.OCMode				= TIM_OCMODE_PWM1;
-	sTimConfig.OCPolarity			= TIM_OCPOLARITY_HIGH;
-	sTimConfig.OCFastMode			= TIM_OCFAST_DISABLE;
-	sTimConfig.Pulse				= 60-1;
-	
-	// Commit PWM out settings
-	if(HAL_TIM_PWM_ConfigChannel(&pwm_handle, &sTimConfig, TIM_CHANNEL_1) != HAL_OK)
-	{
-		printd("failed to commit pwm config");
-	}
-}
-
 
 void ScreenTouch::enableCapacitiveTouch()
 {
@@ -172,9 +124,9 @@ void ScreenTouch::tapSolenoid(TickType_t duration)
 {
 	printd("tapping solenoid\n");
 	indicator_pulse_on();
-	HAL_TIM_PWM_Start(&pwm_handle, TIM_CHANNEL_1);
+	solenoid.extend();
 	vTaskDelay(duration);
-	HAL_TIM_PWM_Stop(&pwm_handle, TIM_CHANNEL_1);
+	solenoid.retract();
 	indicator_pulse_off();
 }
 
@@ -204,10 +156,6 @@ void ScreenTouch::tapSequence(TouchType type, uint32_t count, uint32_t interval,
 	osSemaphoreRelease(touch_semaphore);
 }
 
-void ScreenTouch::sendData(uint32_t index, uint32_t timestamp)
-{
-	ruart_write(Commands::TAP_DATA, index, timestamp);
-}
 void ScreenTouch::calibrate()
 {
 	calibrating = true;	
@@ -219,7 +167,7 @@ void ScreenTouch::solenoidCallback(void)
 {
 	ruart_write(Commands::TAP_DATA, index, SyncTimer::get().getTimestamp());
 	index++;
-	//printd("tapped\n");
+//	printd("tapped\n");
 }
 
 void ScreenTouch::thread(void const * argument)
@@ -252,15 +200,12 @@ void ScreenTouch::normalRun(ScreenTouch * touch)
 	RunParameters params = touch->params;
 	portTickType interval_delay = (params.interval / portTICK_RATE_MS);  
 	portTickType prev_wake = xTaskGetTickCount();
-	uint32_t timestamp;
 	
 	touch->enable(params.type);
 	touch->setCapacitance(params.cap);
 	
 	for (int i = 0; i < params.count; i++) {
-		timestamp = SyncTimer::get().getTimestamp();
 		touch->tap(params.type, tap_delay);
-		touch->sendData(i, timestamp);
 		vTaskDelayUntil(&prev_wake, interval_delay);
 	}
 	

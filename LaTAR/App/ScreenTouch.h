@@ -70,9 +70,6 @@ private:
 	static void normalRun(ScreenTouch * touch);
 	static void calibrationRun(ScreenTouch * touch);
 	
-	void sendData(uint32_t index, uint32_t timestamp);
-	void initPwm();
-	TIM_HandleTypeDef pwm_handle;
 };
 
 #endif
