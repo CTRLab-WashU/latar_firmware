@@ -32,6 +32,8 @@ void ScreenTouch::init()
 	switches[4].init(GPIOC, GPIO_PIN_7, GPIO_PULLUP);
 	
 	initPwm();
+	solenoid.init();
+	solenoid.bind(solenoidCallback);
 	
 	// init threading
 	osThreadDef(screen_touch_thread, thread, osPriorityNormal, 0, 512);
@@ -124,9 +126,6 @@ void ScreenTouch::disableCapacitiveTouch()
 void ScreenTouch::enable(TouchType type)
 {
 	index = 0;
-	
-void ScreenTouch::enable(TouchType type)
-{
 	switch (type)
 	{
 	case TouchType::SolenoidTouch:
@@ -220,7 +219,7 @@ void ScreenTouch::solenoidCallback(void)
 {
 	ruart_write(Commands::TAP_DATA, index, SyncTimer::get().getTimestamp());
 	index++;
-	printd("tapped\n");
+	//printd("tapped\n");
 }
 
 void ScreenTouch::thread(void const * argument)

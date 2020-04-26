@@ -35,7 +35,7 @@ void Solenoid::init()
 	last_filtered = 0;
 	callback = 0;
 	
-	filter.resize(128);
+	filter.resize(64);
 	
 	initDrive();
 	initSense();
@@ -196,14 +196,14 @@ void Solenoid::update(uint32_t value)
 
 void Solenoid::enable()
 {
-	//HAL_TIM_Base_Start(&sense_tim_handle);
+	HAL_TIM_Base_Start(&sense_tim_handle);
 	enabled = true;
 }
 
 void Solenoid::disable()
 {
 	enabled = false;
-	//HAL_TIM_Base_Stop(&sense_tim_handle);
+	HAL_TIM_Base_Stop(&sense_tim_handle);
 }
 
 void Solenoid::extend()
