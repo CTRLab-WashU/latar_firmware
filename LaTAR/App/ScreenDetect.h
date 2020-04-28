@@ -7,7 +7,9 @@
 
 class ScreenDetect
 {
-	ScreenDetect(){}
+	TIM_HandleTypeDef timer_handle;
+	ADC_HandleTypeDef adc_handle;
+	
 public:
 	static ScreenDetect& get() {
 		static ScreenDetect instance;
@@ -15,7 +17,6 @@ public:
 	}
 		
 	void init();
-	void update(uint32_t value);
 	
 	void enable(uint32_t threshold);
 	void disable();
@@ -25,18 +26,13 @@ public:
 	void stopCalibration();
 	
 	private:
+	ScreenDetect() {}
+	
 	static void thread(void const * argument);
-	void sendData(uint32_t index, uint32_t timestamp, uint8_t value);
+	static void adc_irq_handler(uint32_t value);
+	static void update_calibration(uint32_t value);
+	static void update_value(uint32_t value);
 	
-	TIM_HandleTypeDef timer_handle;
-	ADC_HandleTypeDef adc_handle;
-	
-	bool calibrating = false;
-	uint32_t threshold = 3500;
-	uint32_t index = 0;
-	
-	bool isDark = false;
-	bool enabled = false;
 };
 
 #endif

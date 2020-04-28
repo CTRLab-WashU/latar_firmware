@@ -1,22 +1,52 @@
 #include "ScreenDetect.h"
 #include <stdio.h>
-#include "Commands.h"
-#include "SyncTimer.h"
+
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "cmsis_os.h"
 #include "config.h"
-#include "Indicator.h"
 
 #include "Communication/ruart.h"
+#include "System/FirFilter.h"
+#include "System/ADC.h"
+#include "Indicator.h"
+#include "SyncTimer.h"
+#include "Commands.h"
 
-osSemaphoreId detect_semaphore;
 uint32_t timestamp;
 uint32_t minValue = 200000;
 uint32_t maxValue = 0;
 
+static uint32_t last_filtered;
+static Filter::Fir filter;
+
+static bool calibrating = false;
+static uint32_t threshold = 3500;
+static uint32_t index = 0;
+
+volatile bool dark = false;
+volatile bool enabled = false;
+
+void ScreenDetect::adc_irq_handler(uint32_t value)
+{
+	if (value > 40000) {
+		return;
+	}
+	filter.enqueue(value);
+	if (!filter.primed()) {
+		return;
+	}
+	if (calibrating) {
+		update_calibration(filter.value());	
+		return;
+	}
+	update_value(filter.value());
+}
+
 void ScreenDetect::init()
 {	
+	filter.resize(64);
+	
 	GPIO_InitTypeDef gpio_init;
 	
 	__GPIOA_CLK_ENABLE();
@@ -75,6 +105,8 @@ void ScreenDetect::init()
 		return;
 	}
 	
+	register_adc_callback(ADC2, &adc_handle, adc_irq_handler);
+	
 	HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
 	HAL_NVIC_EnableIRQ(ADC_IRQn);
 	
@@ -86,14 +118,11 @@ void ScreenDetect::init()
 	osThreadDef(screen_detect_thread, thread, osPriorityNormal, 0, 512);
 	osThreadCreate(osThread(screen_detect_thread), (void*)this);
 	
-	osSemaphoreDef(detect_semaphore);
-	detect_semaphore = osSemaphoreCreate(osSemaphore(detect_semaphore), 1);
-	
 }	
 
 void ScreenDetect::enable(uint32_t threshold)
 {
-	this->threshold = threshold;
+	::threshold = threshold;
 	
 	index = 0;
 	calibrating = false;
@@ -133,60 +162,52 @@ bool ScreenDetect::isEnabled()
 	return enabled;
 }
 
-void ScreenDetect::update(uint32_t value)
-{			
-	
-	if (calibrating) {
-		if (value < minValue) {
-			minValue = value;
-		} else if (value > maxValue) {
-			maxValue = value;
-		}
-		return;
+void ScreenDetect::update_calibration(uint32_t value)
+{
+	if (value < minValue) {
+		minValue = value;
 	}
-	
+	else if (value > maxValue) {
+		maxValue = value;
+	}
+}
+void ScreenDetect::update_value(uint32_t value)
+{			
 	if (!enabled) {
 		return;
 	}
 	
-	if (isDark && value > threshold) {
+	if (dark && value > threshold) {
 		timestamp = SyncTimer::get().getTimestamp();
 		index++;
-		isDark = false;
+		dark = false;
 		return;
 	}
 		
-	if (!isDark && value < threshold) {
+	if (!dark && value < threshold) {
 		timestamp = SyncTimer::get().getTimestamp();
 		index++;
-		isDark = true;
+		dark = true;
 		return;
 	}
-}
-
-void ScreenDetect::sendData(uint32_t index, uint32_t timestamp, uint8_t value)
-{
-	ruart_write(Commands::DISPLAY_DATA, index, timestamp, value);
 }
 
 void ScreenDetect::thread(void const * argument)
 {	
 	ScreenDetect * detect = (ScreenDetect*)argument;
 	
-	bool isDark = detect->isDark;
+	bool last = dark;
 	for (;;) {
-		if (detect->isDark!= isDark) {
-			isDark = detect->isDark;
+		if (last != dark) {
+			last = dark;
 			
-			printd("threshold = %u", detect->threshold);			
-			
-			if (detect->isDark) {
+			if (dark) {
 				indicator_pulse_off();
-				detect->sendData(detect->index, timestamp, 0);
+				ruart_write(Commands::DISPLAY_DATA, index, timestamp, 0);
 				printd("dark\n");
 			} else {
 				indicator_pulse_on();
-				detect->sendData(detect->index, timestamp, 1);
+				ruart_write(Commands::DISPLAY_DATA, index, timestamp, 1);
 				printd("light\n");
 			}		
 		}
