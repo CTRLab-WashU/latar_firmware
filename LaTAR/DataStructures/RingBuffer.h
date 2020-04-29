@@ -36,8 +36,6 @@ public:
 			return default_value;
 		// get item at head
 		T item = buffer[head];
-		// set item at head to be empty
-//		buffer[head] = default_value;
 		// move head foward
 		head = (head + 1) % capacity;
 		// return item
@@ -99,11 +97,18 @@ public:
 		return tail; 
 	}
 	
+	void reset()
+	{
+		head = 0;
+		tail = 0;
+	}
+	
 	void clear()
 	{
-		while (!isEmpty())
-		{
-			dequeue();
+		static int i;
+		
+		for (i = 0; i <= capacity; i++) {
+			buffer[i] = default_value;
 		}
 		head = 0;
 		tail = 0;
