@@ -157,7 +157,7 @@ void ruart_handle_byte(uint8_t byte)
 		ruart_syncing = true;
 		indicator_pulse_on();
 		printd("in clock sync mode\n");
-		ruart::tx_queue.clear();
+		ruart::tx_queue.reset();
 		return;
 	}
 
@@ -253,6 +253,7 @@ void ruart_handle_byte(uint8_t byte)
 		if (ruart::frame.stop(ruart::tx_msg)) {
 			if (ruart::msg_callback != 0) {
 				ruart::msg_callback(ruart::tx_msg);
+				ruart::tx_msg.buffer.clear();
 			}
 			ruart_write_byte(frame_ack);
 		} else {

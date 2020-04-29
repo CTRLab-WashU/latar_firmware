@@ -26,7 +26,7 @@ struct RuartFrame
 	
 	void start()
 	{
-		buffer.clear();
+		buffer.reset();
 		active = true;
 	}
 	
@@ -37,7 +37,7 @@ struct RuartFrame
 		if (buffer.size() < 2) {
 			return false;
 		}
-		message.buffer.clear();
+		message.buffer.reset();
 		message.size = buffer.dequeue();
 		message.command = buffer.dequeue();
 		counter = 1;

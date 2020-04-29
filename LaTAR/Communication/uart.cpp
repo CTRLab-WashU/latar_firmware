@@ -123,7 +123,7 @@ static void uart_tx_thread(void const * argument)
 					printd("uart write failed\n");
 				}			
 			}
-			uart_tx_queue.clear();
+			uart_tx_queue.reset();
 			uart_tx_blocked = false;
 		}
 	}
