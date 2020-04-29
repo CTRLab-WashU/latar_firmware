@@ -14,8 +14,19 @@ class RingBuffer
 	bool full;
 	
 public:
-	RingBuffer(){}
+	RingBuffer()
+	{
+		full = false;
+		head = 0;
+		tail = 0;
+	}
+	
 	~RingBuffer(){}
+	
+	void setDefault(T item) 
+	{ 
+		default_value = item;
+	}
 	
 	bool enqueue(T item)
 	{
