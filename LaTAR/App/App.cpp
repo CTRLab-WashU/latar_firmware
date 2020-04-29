@@ -98,17 +98,32 @@ void App::commandReceived(RuartMsg &message)
 	}
 }
 
-RingBuffer<char, 32> conversion_buffer;
+
 
 uint32_t App::parseUnsignedInt(RxBuffer &buffer)
 {
-	while (buffer.peek() != ',' && buffer.peek() != 0)
-	{
-		conversion_buffer.enqueue(buffer.dequeue());
+	static char conversion_buffer[32] = { 0 };
+	static uint8_t byte;
+	static int index;
+
+	index = 0;
+
+	while (true) {
+		byte = buffer.peek();
+		if (byte == 0 || byte == ',' || buffer.isEmpty()) {
+			index--;
+			break;
+		}
+		conversion_buffer[index] = buffer.dequeue();
+		index++;
 	}
-	uint32_t value = strtoul(conversion_buffer.getRawBuffer().data(), NULL, 0);
-	conversion_buffer.clear();
-	
+
+	uint32_t value = strtoul(conversion_buffer, NULL, 0);
+
+	for (index; index >= 0; index--) {
+		conversion_buffer[index] = 0;
+	}
+
 	return value;
 }
 
