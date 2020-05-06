@@ -112,12 +112,17 @@ void ScreenTouch::disable(TouchType type)
 
 void ScreenTouch::tapCapacitive(TickType_t duration)
 {
+	static uint32_t timestamp;
+	
 	printd("tapping capacitive\n");
 	indicator_pulse_on();
+	timestamp =  SyncTimer::get().getTimestamp();
 	relay.set();
 	vTaskDelay(duration);
 	relay.reset();
 	indicator_pulse_off();
+	ruart_write(Commands::TAP_DATA, index, timestamp);
+	index++;
 }
 
 void ScreenTouch::tapSolenoid(TickType_t duration)
