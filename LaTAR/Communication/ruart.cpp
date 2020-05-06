@@ -17,8 +17,8 @@
 #include "DataStructures/RingBuffer.h"
 #include "DataStructures/ascii.h"
 #include "System/SoftTimer.h"
-#include "SyncTimer.h"
-#include "Commands.h"
+#include "../App/SyncTimer.h"
+#include "../App/Commands.h"
 
 #include "wrapped_buffer.h"
 #include "ruart_frame.h"
