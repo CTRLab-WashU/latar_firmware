@@ -35,7 +35,7 @@ void Solenoid::init()
 	last_filtered = 0;
 	callback = 0;
 	
-	filter.resize(64);
+	filter.resize(32);
 	
 	initDrive();
 	initSense();

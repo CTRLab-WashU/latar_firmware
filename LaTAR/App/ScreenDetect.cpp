@@ -45,7 +45,7 @@ void ScreenDetect::adc_irq_handler(uint32_t value)
 
 void ScreenDetect::init()
 {	
-	filter.resize(64);
+	filter.resize(32);
 	
 	GPIO_InitTypeDef gpio_init;
 	
