@@ -112,17 +112,12 @@ void ScreenTouch::disable(TouchType type)
 
 void ScreenTouch::tapCapacitive(TickType_t duration)
 {
-	static uint32_t timestamp;
-	
 	printd("tapping capacitive\n");
-	indicator_pulse_on();
-	timestamp =  SyncTimer::get().getTimestamp();
+	indicator_pulse_on();	
 	relay.set();
 	vTaskDelay(duration);
 	relay.reset();
 	indicator_pulse_off();
-	ruart_write(Commands::TAP_DATA, index, timestamp);
-	index++;
 }
 
 void ScreenTouch::tapSolenoid(TickType_t duration)
@@ -205,12 +200,22 @@ void ScreenTouch::normalRun(ScreenTouch * touch)
 	RunParameters params = touch->params;
 	portTickType interval_delay = (params.interval / portTICK_RATE_MS);  
 	portTickType prev_wake = xTaskGetTickCount();
+	bool capacitive = params.type == CapacitiveTouch;
+	uint32_t timestamp;
 	
 	touch->enable(params.type);
 	touch->setCapacitance(params.cap);
 	
 	for (int i = 0; i < params.count; i++) {
-		touch->tap(params.type, tap_delay);
+		if (capacitive) {
+			timestamp =  SyncTimer::get().getTimestamp();
+			touch->tap(params.type, tap_delay);
+			ruart_write(Commands::TAP_DATA, index, timestamp);
+			index++;
+		} else {
+			touch->tap(params.type, tap_delay);
+		}
+
 		vTaskDelayUntil(&prev_wake, interval_delay);
 	}
 	
