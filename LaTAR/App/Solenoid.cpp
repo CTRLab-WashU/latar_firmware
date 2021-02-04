@@ -74,7 +74,7 @@ void Solenoid::initDrive()
 	tim_config.OCMode		= TIM_OCMODE_PWM1;
 	tim_config.OCPolarity	= TIM_OCPOLARITY_HIGH;
 	tim_config.OCFastMode	= TIM_OCFAST_DISABLE;
-	tim_config.Pulse		= 60 - 1;
+	tim_config.Pulse		= 80 - 1;
 	
 	// commit driver settings
 	if(HAL_TIM_PWM_ConfigChannel(&drive_tim_handle, &tim_config, TIM_CHANNEL_1) != HAL_OK) {
