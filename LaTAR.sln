@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.960
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LaTAR", "LaTAR\LaTAR.vcxproj", "{6F69B156-BBD0-4CBB-9ED7-061CD944A518}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Release|VisualGDB = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6F69B156-BBD0-4CBB-9ED7-061CD944A518}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{6F69B156-BBD0-4CBB-9ED7-061CD944A518}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{6F69B156-BBD0-4CBB-9ED7-061CD944A518}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{6F69B156-BBD0-4CBB-9ED7-061CD944A518}.Release|VisualGDB.Build.0 = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4233197-3532-442E-BC41-3C55710553A9}
+	EndGlobalSection
+EndGlobal
